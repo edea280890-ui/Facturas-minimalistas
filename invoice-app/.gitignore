@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Stripe CLI binary, downloaded locally for testing webhooks (not part of the app)
+/stripe
+/stripe.tar.gz
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
