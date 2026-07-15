@@ -1,19 +1,24 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useInvoiceStore } from '@/store/useInvoiceStore';
 import { useToastStore } from '@/store/useToastStore';
+import { useProfileStore, pollProfileUntilPremium } from '@/store/useProfileStore';
+import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
 
 export default function Header() {
   const session = useAuthStore((s) => s.session);
   const initialize = useAuthStore((s) => s.initialize);
+  const isPremium = useProfileStore((s) => s.isPremium);
+  const profileLoaded = useProfileStore((s) => s.profileLoaded);
   const [showLogin, setShowLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
 
   const currentInvoiceId = useInvoiceStore((s) => s.currentInvoiceId);
   const saveInvoiceToCloud = useInvoiceStore((s) => s.saveInvoiceToCloud);
@@ -21,9 +26,43 @@ export default function Header() {
   const newInvoice = useInvoiceStore((s) => s.newInvoice);
   const showToast = useToastStore((s) => s.showToast);
 
+  const checkoutReturnHandled = useRef(false);
+
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  // Al volver de Stripe Checkout (`/?checkout=success|cancelled`), muestra el
+  // resultado y refresca el perfil con reintentos, ya que el webhook puede
+  // tardar un instante más que el propio redirect en marcar is_premium=true.
+  useEffect(() => {
+    if (checkoutReturnHandled.current || typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const checkoutStatus = params.get('checkout');
+    if (!checkoutStatus) return;
+
+    checkoutReturnHandled.current = true;
+    params.delete('checkout');
+    const newUrl = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`;
+    window.history.replaceState({}, '', newUrl);
+
+    if (checkoutStatus === 'success') {
+      showToast('info', 'Pago recibido. Confirmando tu acceso Pro…');
+      if (session?.user.id) {
+        pollProfileUntilPremium(session.user.id).then((confirmed) => {
+          showToast(
+            confirmed ? 'success' : 'error',
+            confirmed
+              ? '¡Ya tienes acceso Pro! Ya puedes guardar facturas en la nube.'
+              : 'El pago se recibió, pero tu acceso Pro todavía no se confirmó. Recarga la página en unos segundos.',
+          );
+        });
+      }
+    } else if (checkoutStatus === 'cancelled') {
+      showToast('info', 'Pago cancelado. Puedes intentarlo de nuevo cuando quieras.');
+    }
+  }, [session, showToast]);
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +94,35 @@ export default function Header() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo cerrar la sesión.';
       showToast('error', message);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setUpgrading(true);
+    try {
+      const {
+        data: { session: activeSession },
+      } = await supabase.auth.getSession();
+      const accessToken = activeSession?.access_token;
+      if (!accessToken) {
+        throw new Error('Debes iniciar sesión para actualizar a Pro.');
+      }
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const json = (await response.json()) as { url?: string; error?: string };
+
+      if (!response.ok || !json.url) {
+        throw new Error(json.error ?? 'No se pudo iniciar el proceso de pago.');
+      }
+
+      window.location.href = json.url;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo iniciar el proceso de pago.';
+      showToast('error', message);
+      setUpgrading(false);
     }
   };
 
@@ -96,20 +164,33 @@ export default function Header() {
         <div className="flex flex-wrap items-center gap-3">
           {session ? (
             <>
-              <span className="hidden text-sm text-slate-500 sm:inline">{session.user.email}</span>
+              <span className="hidden items-center gap-2 text-sm text-slate-500 sm:inline-flex">
+                {session.user.email}
+                {isPremium && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+                    Pro
+                  </span>
+                )}
+              </span>
               <Link href="/dashboard" className={btnGhost}>
                 Mis facturas
               </Link>
               <button onClick={newInvoice} className={btnGhost}>
                 Nueva factura
               </button>
-              <button onClick={handleSave} disabled={saving} className={btnPrimary}>
-                {saving
-                  ? 'Guardando…'
-                  : currentInvoiceId
-                    ? 'Guardar cambios'
-                    : 'Guardar en la nube'}
-              </button>
+              {profileLoaded && !isPremium ? (
+                <button onClick={handleUpgrade} disabled={upgrading} className={btnPrimary}>
+                  {upgrading ? 'Redirigiendo…' : `Actualizar a Pro (${PRO_PRICE_USD_LABEL})`}
+                </button>
+              ) : (
+                <button onClick={handleSave} disabled={saving || !profileLoaded} className={btnPrimary}>
+                  {saving
+                    ? 'Guardando…'
+                    : currentInvoiceId
+                      ? 'Guardar cambios'
+                      : 'Guardar en la nube'}
+                </button>
+              )}
               <button onClick={handleSignOut} className={btnGhost}>
                 Cerrar Sesión
               </button>
