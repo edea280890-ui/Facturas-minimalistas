@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { Invoice } from '@/types/invoice';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -14,7 +14,8 @@ const styles = StyleSheet.create({
   colDesc: { width: '50%' }, colQty: { width: '15%', textAlign: 'center' }, colPrice: { width: '15%', textAlign: 'right' }, colTotal: { width: '20%', textAlign: 'right' },
   totals: { marginTop: 20, alignItems: 'flex-end' },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', width: '40%', paddingVertical: 4 },
-  finalTotal: { fontFamily: 'Helvetica-Bold', fontSize: 12, borderTopWidth: 1, borderTopColor: '#cbd5e1', paddingTop: 4, marginTop: 4, color: '#0f172a' }
+  finalTotal: { fontFamily: 'Helvetica-Bold', fontSize: 12, borderTopWidth: 1, borderTopColor: '#cbd5e1', paddingTop: 4, marginTop: 4, color: '#0f172a' },
+  logo: { width: 48, height: 48, marginBottom: 8, objectFit: 'contain' },
 });
 
 export const InvoiceDocument = ({ data, subtotal, total }: { data: Invoice, subtotal: number, total: number }) => (
@@ -27,6 +28,10 @@ export const InvoiceDocument = ({ data, subtotal, total }: { data: Invoice, subt
           <Text style={styles.text}>Fecha: {data.date}</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
+          {data.company.logoUrl && (
+            // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer's Image (PDF renderer) has no `alt` prop.
+            <Image src={data.company.logoUrl} style={styles.logo} />
+          )}
           <Text style={styles.label}>De:</Text>
           <Text style={{ fontFamily: 'Helvetica-Bold' }}>{data.company.name || 'Emisor'}</Text>
           <Text style={styles.text}>{data.company.address}</Text>

@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useInvoiceStore } from '@/store/useInvoiceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { SUPPORTED_CURRENCIES } from '@/types/invoice';
+import { uploadCompanyLogo } from '@/utils/supabase/storage';
 
 export default function InvoiceForm() {
   const {
@@ -15,10 +16,35 @@ export default function InvoiceForm() {
   } = useInvoiceStore();
   const session = useAuthStore((s) => s.session);
   const showToast = useToastStore((s) => s.showToast);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const handleItemChange = (id: string, field: 'description' | 'quantity' | 'price', value: string) => {
     if (field === 'description') updateItem(id, { description: value });
     else updateItem(id, { [field]: parseFloat(value) || 0 });
+  };
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    if (!session) {
+      showToast('error', 'Inicia sesión para subir el logo de tu empresa.');
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const result = await uploadCompanyLogo(file, session.user.id);
+      if (result.error || !result.url) {
+        showToast('error', result.error ?? 'No se pudo subir el logo.');
+      } else {
+        updateCompany({ logoUrl: result.url });
+        showToast('success', 'Logo subido correctamente.');
+      }
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const handleAutoNumber = async () => {
@@ -124,6 +150,29 @@ export default function InvoiceForm() {
             <div>
               <label className={labelClass}>ID Fiscal</label>
               <input type="text" value={invoice.company.taxId} onChange={(e) => updateCompany({ taxId: e.target.value })} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Logo (opcional)</label>
+              <div className="flex items-center gap-3">
+                {invoice.company.logoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- URL externa de Supabase Storage, no requiere optimización de next/image.
+                  <img
+                    src={invoice.company.logoUrl}
+                    alt="Logo del emisor"
+                    className="h-10 w-10 rounded-md border border-slate-200 object-contain bg-white"
+                  />
+                )}
+                <label className="text-xs font-medium px-3 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer">
+                  {uploadingLogo ? 'Subiendo…' : invoice.company.logoUrl ? 'Cambiar logo' : 'Subir logo'}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={handleLogoChange}
+                    disabled={uploadingLogo}
+                    className="hidden"
+                  />
+                </label>
+              </div>
             </div>
           </div>
         </section>

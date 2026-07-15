@@ -10,6 +10,8 @@ export interface CompanyDetails {
   email: string;
   address: string;
   taxId: string;
+  /** URL pública del logo del emisor, subido a Supabase Storage (bucket `logos`). */
+  logoUrl?: string;
 }
 
 export interface ClientDetails {

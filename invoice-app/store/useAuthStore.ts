@@ -4,7 +4,10 @@ import { supabase } from '@/utils/supabase/client';
 
 interface AuthState {
   session: Session | null;
+  /** true una vez que se ha llamado a initialize(); no implica que la sesión ya se haya resuelto. */
   initialized: boolean;
+  /** true una vez que la primera consulta a getSession() se ha resuelto (con o sin sesión). */
+  sessionLoaded: boolean;
   initialize: () => void;
 }
 
@@ -13,6 +16,7 @@ let unsubscribe: (() => void) | null = null;
 export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
   initialized: false,
+  sessionLoaded: false,
 
   initialize: () => {
     if (get().initialized) return;
@@ -20,11 +24,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     supabase.auth
       .getSession()
-      .then(({ data }) => set({ session: data.session }))
-      .catch(() => set({ session: null }));
+      .then(({ data }) => set({ session: data.session, sessionLoaded: true }))
+      .catch(() => set({ session: null, sessionLoaded: true }));
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      set({ session: nextSession });
+      set({ session: nextSession, sessionLoaded: true });
     });
 
     unsubscribe = () => sub.subscription.unsubscribe();
