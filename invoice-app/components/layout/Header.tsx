@@ -1,86 +1,79 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { Session } from '@supabase/supabase-js';
+import Link from 'next/link';
 import { supabase } from '@/utils/supabase/client';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useInvoiceStore } from '@/store/useInvoiceStore';
-
-type Status = { type: 'idle' | 'success' | 'error'; message: string };
+import { useToastStore } from '@/store/useToastStore';
 
 export default function Header() {
-  const [session, setSession] = useState<Session | null>(null);
+  const session = useAuthStore((s) => s.session);
+  const initialize = useAuthStore((s) => s.initialize);
   const [showLogin, setShowLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<Status>({ type: 'idle', message: '' });
 
+  const currentInvoiceId = useInvoiceStore((s) => s.currentInvoiceId);
   const saveInvoiceToCloud = useInvoiceStore((s) => s.saveInvoiceToCloud);
+  const updateInvoiceInCloud = useInvoiceStore((s) => s.updateInvoiceInCloud);
+  const newInvoice = useInvoiceStore((s) => s.newInvoice);
+  const showToast = useToastStore((s) => s.showToast);
 
   useEffect(() => {
-    let mounted = true;
-
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (mounted) setSession(data.session);
-      })
-      .catch(() => {
-        if (mounted) setSession(null);
-      });
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
+    initialize();
+  }, [initialize]);
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus({ type: 'idle', message: '' });
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
         },
       });
       if (error) throw error;
-      setStatus({ type: 'success', message: 'Enlace enviado. Revisa tu correo para iniciar sesión.' });
+      showToast('success', 'Enlace enviado. Revisa tu correo para iniciar sesión.');
       setEmail('');
+      setShowLogin(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo enviar el enlace de acceso.';
-      setStatus({ type: 'error', message });
+      showToast('error', message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    setStatus({ type: 'idle', message: '' });
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      newInvoice();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'No se pudo cerrar la sesión.';
-      setStatus({ type: 'error', message });
+      showToast('error', message);
     }
   };
 
   const handleSave = async () => {
-    setStatus({ type: 'idle', message: '' });
     setSaving(true);
     try {
-      const result = await saveInvoiceToCloud();
+      const result = currentInvoiceId
+        ? await updateInvoiceInCloud(currentInvoiceId)
+        : await saveInvoiceToCloud();
+
       if (result.error) {
-        setStatus({ type: 'error', message: result.error });
+        showToast('error', result.error);
       } else {
-        setStatus({ type: 'success', message: 'Factura guardada en la nube correctamente.' });
+        showToast(
+          'success',
+          currentInvoiceId
+            ? `Factura ${result.id} actualizada correctamente.`
+            : `Factura guardada correctamente (id: ${result.id}).`,
+        );
       }
     } finally {
       setSaving(false);
@@ -100,21 +93,39 @@ export default function Header() {
           <p className="text-slate-500">Completar datos y exportar a PDF</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {session ? (
             <>
               <span className="hidden text-sm text-slate-500 sm:inline">{session.user.email}</span>
+              <Link href="/dashboard" className={btnGhost}>
+                Mis facturas
+              </Link>
+              <button onClick={newInvoice} className={btnGhost}>
+                Nueva factura
+              </button>
               <button onClick={handleSave} disabled={saving} className={btnPrimary}>
-                {saving ? 'Guardando…' : 'Guardar en la nube'}
+                {saving
+                  ? 'Guardando…'
+                  : currentInvoiceId
+                    ? 'Guardar cambios'
+                    : 'Guardar en la nube'}
               </button>
               <button onClick={handleSignOut} className={btnGhost}>
                 Cerrar Sesión
               </button>
             </>
           ) : (
-            <button onClick={() => setShowLogin((v) => !v)} className={btnPrimary}>
-              Iniciar Sesión
-            </button>
+            <div className="flex items-center gap-2">
+              <span
+                title="Inicia sesión para guardar tus facturas en la nube"
+                className="text-sm text-slate-400"
+              >
+                Inicia sesión para guardar en la nube
+              </span>
+              <button onClick={() => setShowLogin((v) => !v)} className={btnPrimary}>
+                Iniciar Sesión
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -136,14 +147,6 @@ export default function Header() {
             {loading ? 'Enviando…' : 'Enviar enlace mágico'}
           </button>
         </form>
-      )}
-
-      {status.type !== 'idle' && (
-        <p
-          className={`mt-3 text-sm ${status.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}
-        >
-          {status.message}
-        </p>
       )}
     </header>
   );
