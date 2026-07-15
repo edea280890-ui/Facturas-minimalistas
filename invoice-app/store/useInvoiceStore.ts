@@ -2,7 +2,12 @@ import { create } from 'zustand';
 import { Invoice, LineItem, CompanyDetails, ClientDetails, StoredInvoice } from '@/types/invoice';
 import { supabase } from '@/utils/supabase/client';
 import { InvoiceRow, invoiceToRowPayload, rowToStoredInvoice } from '@/utils/supabase/mappers';
-import { validateInvoice, hasValidationErrors, flattenValidationErrors } from '@/utils/validateInvoice';
+import {
+  validateInvoice,
+  hasValidationErrors,
+  flattenValidationErrors,
+  InvoiceValidationErrors,
+} from '@/utils/validateInvoice';
 
 interface SaveResult {
   error: string | null;
@@ -27,6 +32,7 @@ interface InvoiceState {
   invoices: StoredInvoice[];
   isLoadingInvoices: boolean;
   listError: string | null;
+  validationErrors: InvoiceValidationErrors;
 
   updateCompany: (company: Partial<CompanyDetails>) => void;
   updateClient: (client: Partial<ClientDetails>) => void;
@@ -99,15 +105,22 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   invoices: [],
   isLoadingInvoices: false,
   listError: null,
+  validationErrors: {},
 
   updateCompany: (companyData) =>
-    set((state) => ({ invoice: { ...state.invoice, company: { ...state.invoice.company, ...companyData } } })),
+    set((state) => ({
+      invoice: { ...state.invoice, company: { ...state.invoice.company, ...companyData } },
+      validationErrors: {},
+    })),
 
   updateClient: (clientData) =>
-    set((state) => ({ invoice: { ...state.invoice, client: { ...state.invoice.client, ...clientData } } })),
+    set((state) => ({
+      invoice: { ...state.invoice, client: { ...state.invoice.client, ...clientData } },
+      validationErrors: {},
+    })),
 
   updateInvoiceDetails: (details) =>
-    set((state) => ({ invoice: { ...state.invoice, ...details } })),
+    set((state) => ({ invoice: { ...state.invoice, ...details }, validationErrors: {} })),
 
   addItem: () =>
     set((state) => ({
@@ -115,11 +128,13 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         ...state.invoice,
         items: [...state.invoice.items, { id: generateId(), description: '', quantity: 1, price: 0 }],
       },
+      validationErrors: {},
     })),
 
   removeItem: (id) =>
     set((state) => ({
       invoice: { ...state.invoice, items: state.invoice.items.filter((item) => item.id !== id) },
+      validationErrors: {},
     })),
 
   updateItem: (id, itemData) =>
@@ -128,6 +143,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         ...state.invoice,
         items: state.invoice.items.map((item) => (item.id === id ? { ...item, ...itemData } : item)),
       },
+      validationErrors: {},
     })),
 
   getSubtotal: () => {
@@ -142,7 +158,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   },
 
   newInvoice: () => {
-    set({ invoice: buildInitialInvoice(), currentInvoiceId: null });
+    set({ invoice: buildInitialInvoice(), currentInvoiceId: null, validationErrors: {} });
   },
 
   saveInvoiceToCloud: async (): Promise<SaveResult> => {
@@ -150,6 +166,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       const { invoice } = get();
       const validationErrors = validateInvoice(invoice);
       if (hasValidationErrors(validationErrors)) {
+        set({ validationErrors });
         return { error: flattenValidationErrors(validationErrors).join(' ') };
       }
 
@@ -166,7 +183,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
 
       if (error) throw error;
 
-      set({ currentInvoiceId: data.id as string });
+      set({ currentInvoiceId: data.id as string, validationErrors: {} });
       return { error: null, id: data.id as string };
     } catch (err) {
       return { error: describeError(err, 'Ocurrió un error desconocido al guardar la factura.') };
@@ -178,6 +195,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       const { invoice } = get();
       const validationErrors = validateInvoice(invoice);
       if (hasValidationErrors(validationErrors)) {
+        set({ validationErrors });
         return { error: flattenValidationErrors(validationErrors).join(' ') };
       }
 
@@ -194,6 +212,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
 
       if (error) throw error;
 
+      set({ validationErrors: {} });
       return { error: null, id };
     } catch (err) {
       return { error: describeError(err, 'Ocurrió un error desconocido al actualizar la factura.') };
@@ -256,7 +275,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         taxRate: stored.taxRate,
       };
 
-      set({ invoice: invoiceFields, currentInvoiceId: stored.id });
+      set({ invoice: invoiceFields, currentInvoiceId: stored.id, validationErrors: {} });
       return { error: null, id: stored.id };
     } catch (err) {
       return { error: describeError(err, 'No se pudo cargar la factura seleccionada.') };
