@@ -6,7 +6,14 @@ import Header from '@/components/layout/Header';
 
 const InvoicePreviewDynamic = dynamic(
   () => import('@/components/invoice/InvoicePreview'),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full min-h-[600px] flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-slate-400">
+        Cargando visor...
+      </div>
+    ),
+  }
 );
 
 export default function Home() {
