@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { Invoice } from '@/types/invoice';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: 'Helvetica', fontSize: 10, color: '#334155' },
@@ -47,15 +48,15 @@ export const InvoiceDocument = ({ data, subtotal, total }: { data: Invoice, subt
           <View key={item.id} style={styles.tableRow}>
             <Text style={styles.colDesc}>{item.description}</Text>
             <Text style={styles.colQty}>{item.quantity}</Text>
-            <Text style={styles.colPrice}>{item.price.toFixed(2)}</Text>
-            <Text style={styles.colTotal}>{(item.quantity * item.price).toFixed(2)}</Text>
+            <Text style={styles.colPrice}>{formatCurrency(item.price, data.currency)}</Text>
+            <Text style={styles.colTotal}>{formatCurrency(item.quantity * item.price, data.currency)}</Text>
           </View>
         ))}
       </View>
       <View style={styles.totals}>
-        <View style={styles.totalRow}><Text>Subtotal:</Text><Text>{subtotal.toFixed(2)} {data.currency}</Text></View>
-        <View style={styles.totalRow}><Text>IVA ({data.taxRate}%):</Text><Text>{(total - subtotal).toFixed(2)} {data.currency}</Text></View>
-        <View style={[styles.totalRow, styles.finalTotal]}><Text>Total:</Text><Text>{total.toFixed(2)} {data.currency}</Text></View>
+        <View style={styles.totalRow}><Text>Subtotal:</Text><Text>{formatCurrency(subtotal, data.currency)}</Text></View>
+        <View style={styles.totalRow}><Text>IVA ({data.taxRate}%):</Text><Text>{formatCurrency(total - subtotal, data.currency)}</Text></View>
+        <View style={[styles.totalRow, styles.finalTotal]}><Text>Total:</Text><Text>{formatCurrency(total, data.currency)}</Text></View>
       </View>
     </Page>
   </Document>
