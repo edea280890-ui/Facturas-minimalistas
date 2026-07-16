@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import InvoiceForm from '@/components/invoice/InvoiceForm';
 import Header from '@/components/layout/Header';
+import PricingSection from '@/components/landing/PricingSection';
 
 const InvoicePreviewDynamic = dynamic(
   () => import('@/components/invoice/InvoicePreview'),
@@ -21,6 +22,8 @@ export default function Home() {
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <Header />
+
+        <PricingSection />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <section className="h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-8">
