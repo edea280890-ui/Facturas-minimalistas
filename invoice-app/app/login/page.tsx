@@ -8,11 +8,15 @@ import { getHotmartCheckoutUrl } from '@/utils/hotmart/config';
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/app';
+  const authFailed = searchParams.get('error') === 'auth_failed';
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    authFailed
+      ? 'El enlace de acceso expiró o no es válido. Solicita uno nuevo.'
+      : null,
+  );
   const hotmartUrl = getHotmartCheckoutUrl();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,8 +27,9 @@ function LoginForm() {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
+          // Callback limpio: el Route Handler decide el destino (/admin).
           emailRedirectTo:
-            typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}` : undefined,
+            typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
         },
       });
       if (otpError) throw otpError;

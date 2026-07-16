@@ -45,8 +45,14 @@ export async function requireAdminOrRedirect() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user?.email || !isAdminEmail(user.email)) {
+  if (!user?.email) {
     redirect('/login?next=/admin');
+  }
+
+  if (!isAdminEmail(user.email)) {
+    // Sesión válida pero sin privilegio admin → app, no login (evita bucle
+    // tras /auth/callback que redirige a /admin).
+    redirect('/app');
   }
 
   return { user, email: user.email.toLowerCase(), supabase };

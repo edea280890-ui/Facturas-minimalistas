@@ -1,21 +1,18 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { requireEnv } from '@/utils/env';
 
 /**
- * Refresca la sesión de Supabase en la request del middleware y devuelve
- * el cliente + la response (con cookies actualizadas si hace falta).
+ * Refresca la sesión de Supabase en el middleware (cookies).
+ * No hace redirects de negocio: eso vive en layouts / route handlers.
  */
 export async function createSupabaseMiddlewareClient(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request: { headers: request.headers },
   });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Faltan NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY.');
-  }
+  const supabaseUrl = requireEnv('NEXT_PUBLIC_SUPABASE_URL');
+  const supabaseAnonKey = requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {

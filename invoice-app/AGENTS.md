@@ -15,7 +15,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - Webhook Hotmart (`app/api/webhooks/hotmart/route.ts`): en compra aprobada hace upsert `subscribers` + provisiona Auth + `profiles.is_premium`; en no-aprobada marca `canceled` y revoca premium.
   - **NO usar `proxy.ts` / `middleware.ts` en Vercel con Next 16 + `@supabase/ssr`**: ese combo puede devolver 404 en todas las rutas (routing manifest roto). El portero vive en layouts de servidor (`app/app/layout.tsx`, `app/dashboard/layout.tsx`, `app/admin/layout.tsx`) vía `utils/portero.ts`.
   - Panel `/admin` + `GET|PATCH /api/admin/subscribers`: lista activos, dar de baja / reactivar (`ADMIN_EMAILS`).
-  - Auth: **Supabase Magic Link** + cookies `@supabase/ssr` (`utils/supabase/client.ts` + `server.ts`).
+  - Auth: **Supabase Magic Link** + cookies `@supabase/ssr`. Callback servidor: `app/auth/callback/route.ts` (`exchangeCodeForSession`). Éxito → `/admin`; fallo → `/login?error=auth_failed`. Middleware solo refresca sesión (no gates de negocio; eso está en layouts/`utils/portero.ts`).
   - Obligatorio aplicar el SQL de `subscribers` en el SQL Editor de Supabase antes de probar el portero.
   - Vercel: Root Directory = `invoice-app`, Framework = Next.js, **sin** `vercel.json` con rewrites/builds. Production Branch = `main`.
 - Local env vars live in `invoice-app/.env.local`, which is git-ignored (Next.js convention) and therefore does NOT persist in the repo or on fresh cloud VMs. Recreate from `invoice-app/.env.example` (or provide the vars as Cursor Secrets) when Supabase/payment-backed features are needed. Next loads it at startup/reload — watch for `Reload env: .env.local` in the dev log. Required / common vars:

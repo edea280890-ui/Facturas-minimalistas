@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { requireEnv } from '@/utils/env';
 
 /**
  * Cliente Supabase para Server Components / Route Handlers (App Router).
@@ -8,13 +9,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  */
 export async function createSupabaseServerClient(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Faltan NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY.');
-  }
+  const supabaseUrl = requireEnv('NEXT_PUBLIC_SUPABASE_URL');
+  const supabaseAnonKey = requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -27,8 +23,8 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient> {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // En Server Components el set puede fallar (solo lectura); el
-          // proxy se encarga de refrescar la sesión.
+          // En Server Components de solo lectura el set puede fallar;
+          // el middleware refresca la sesión en el request siguiente.
         }
       },
     },
