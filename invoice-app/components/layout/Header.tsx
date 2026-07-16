@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useInvoiceStore } from '@/store/useInvoiceStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useProfileStore, pollProfileUntilPremium } from '@/store/useProfileStore';
+import { useUpgradeCheckout } from '@/hooks/useUpgradeCheckout';
 import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
 
 export default function Header() {
@@ -18,7 +19,7 @@ export default function Header() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [upgrading, setUpgrading] = useState(false);
+  const { upgrading, startCheckout } = useUpgradeCheckout();
 
   const currentInvoiceId = useInvoiceStore((s) => s.currentInvoiceId);
   const saveInvoiceToCloud = useInvoiceStore((s) => s.saveInvoiceToCloud);
@@ -97,35 +98,6 @@ export default function Header() {
     }
   };
 
-  const handleUpgrade = async () => {
-    setUpgrading(true);
-    try {
-      const {
-        data: { session: activeSession },
-      } = await supabase.auth.getSession();
-      const accessToken = activeSession?.access_token;
-      if (!accessToken) {
-        throw new Error('Debes iniciar sesión para actualizar a Pro.');
-      }
-
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const json = (await response.json()) as { url?: string; error?: string };
-
-      if (!response.ok || !json.url) {
-        throw new Error(json.error ?? 'No se pudo iniciar el proceso de pago.');
-      }
-
-      window.location.href = json.url;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'No se pudo iniciar el proceso de pago.';
-      showToast('error', message);
-      setUpgrading(false);
-    }
-  };
-
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -158,7 +130,10 @@ export default function Header() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Generador de Facturas</h1>
-          <p className="text-slate-500">Completar datos y exportar a PDF</p>
+          <p className="text-slate-500">
+            Crea, previsualiza y descarga facturas profesionales en PDF en segundos — gratis, o guarda todo
+            en la nube por un pago único.
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -179,7 +154,7 @@ export default function Header() {
                 Nueva factura
               </button>
               {profileLoaded && !isPremium ? (
-                <button onClick={handleUpgrade} disabled={upgrading} className={btnPrimary}>
+                <button onClick={startCheckout} disabled={upgrading} className={btnPrimary}>
                   {upgrading ? 'Redirigiendo…' : `Actualizar a Pro (${PRO_PRICE_USD_LABEL})`}
                 </button>
               ) : (
