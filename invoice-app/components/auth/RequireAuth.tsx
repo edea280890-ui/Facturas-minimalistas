@@ -36,7 +36,7 @@ export default function RequireAuth({ children }: RequireAuthProps) {
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
         <p className="text-slate-600">Debes iniciar sesión para ver esta página.</p>
         <Link
-          href="/"
+          href="/app"
           className="text-sm font-medium px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
         >
           Volver e iniciar sesión

@@ -29,7 +29,7 @@ export default function AuthCallbackPage() {
       setStatus(ok ? 'success' : 'error');
       setMessage(text);
       if (ok) {
-        setTimeout(() => router.replace('/'), 1200);
+        setTimeout(() => router.replace('/app'), 1200);
       }
     };
 
@@ -73,10 +73,10 @@ export default function AuthCallbackPage() {
         <p className={status === 'error' ? 'text-red-600' : 'text-slate-500'}>{message}</p>
         {status === 'error' && (
           <Link
-            href="/"
+            href="/app"
             className="mt-4 inline-block text-sm font-medium px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
-            Volver al inicio
+            Volver al inicio de sesión
           </Link>
         )}
       </div>

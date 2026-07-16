@@ -37,7 +37,7 @@ function DashboardContent() {
       if (result.error) {
         showToast('error', result.error);
       } else {
-        router.push('/');
+        router.push('/app');
       }
     } finally {
       setPendingId(null);
@@ -70,7 +70,7 @@ function DashboardContent() {
             <p className="text-slate-500">Consulta, edita o elimina tus facturas guardadas en la nube.</p>
           </div>
           <Link
-            href="/"
+            href="/app"
             className="text-sm font-medium px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             Volver al editor
