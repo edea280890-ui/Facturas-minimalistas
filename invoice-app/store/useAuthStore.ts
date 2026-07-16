@@ -22,16 +22,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().initialized) return;
     set({ initialized: true });
 
-    supabase.auth
-      .getSession()
-      .then(({ data }) => set({ session: data.session, sessionLoaded: true }))
-      .catch(() => set({ session: null, sessionLoaded: true }));
+    // `supabase.auth` puede lanzar de forma síncrona (cliente perezoso) si
+    // faltan las variables de entorno de Supabase. Sin este try/catch, ese
+    // throw ocurriría dentro de un useEffect (ProfileSync se monta en el
+    // layout raíz) y rompería el render de TODA la app. Con él, la sesión
+    // simplemente queda en null y el resto de la UI se muestra con normalidad.
+    try {
+      supabase.auth
+        .getSession()
+        .then(({ data }) => set({ session: data.session, sessionLoaded: true }))
+        .catch(() => set({ session: null, sessionLoaded: true }));
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      set({ session: nextSession, sessionLoaded: true });
-    });
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+        set({ session: nextSession, sessionLoaded: true });
+      });
 
-    unsubscribe = () => sub.subscription.unsubscribe();
+      unsubscribe = () => sub.subscription.unsubscribe();
+    } catch (err) {
+      console.error('[useAuthStore] No se pudo inicializar Supabase Auth:', err);
+      set({ session: null, sessionLoaded: true });
+    }
   },
 }));
 

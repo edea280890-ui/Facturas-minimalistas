@@ -3,6 +3,7 @@ import { Metadata } from "next"; // Import necesario para el tipo Metadata
 import { Analytics } from "@vercel/analytics/react"; // Import para Analytics
 import Toaster from "@/components/ui/Toaster";
 import ProfileSync from "@/components/providers/ProfileSync";
+import SupabaseConfigBanner from "@/components/providers/SupabaseConfigBanner";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SupabaseConfigBanner />
         <ProfileSync />
         <div className="flex-1">{children}</div>
         <Footer />

@@ -8,15 +8,19 @@ import { getHotmartCheckoutUrl } from '@/utils/hotmart/config';
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const authFailed = searchParams.get('error') === 'auth_failed';
+  const errorParam = searchParams.get('error');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState<string | null>(
-    authFailed
-      ? 'El enlace de acceso expiró o no es válido. Solicita uno nuevo.'
-      : null,
-  );
+  const [error, setError] = useState<string | null>(() => {
+    if (errorParam === 'auth_failed') {
+      return 'El enlace de acceso expiró o no es válido. Solicita uno nuevo.';
+    }
+    if (errorParam === 'service_unavailable') {
+      return 'El servicio de inicio de sesión no está disponible en este momento. Inténtalo más tarde.';
+    }
+    return null;
+  });
   const hotmartUrl = getHotmartCheckoutUrl();
 
   const handleSubmit = async (e: React.FormEvent) => {

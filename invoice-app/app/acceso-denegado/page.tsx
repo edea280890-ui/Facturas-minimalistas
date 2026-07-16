@@ -13,8 +13,13 @@ export default function AccesoDenegadoPage() {
   const hotmartUrl = getHotmartCheckoutUrl();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('[acceso-denegado] No se pudo cerrar sesión:', err);
+    } finally {
+      window.location.href = '/login';
+    }
   };
 
   return (
