@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Metadata } from "next"; // Import necesario para el tipo Metadata
+import { Analytics } from "@vercel/analytics/react"; // Import para Analytics
 import Toaster from "@/components/ui/Toaster";
 import ProfileSync from "@/components/providers/ProfileSync";
 import Footer from "@/components/layout/Footer";
@@ -35,6 +36,7 @@ export default function RootLayout({
         <div className="flex-1">{children}</div>
         <Footer />
         <Toaster />
+        <Analytics /> {/* Componente de Analytics añadido aquí */}
       </body>
     </html>
   );
