@@ -7,12 +7,16 @@ Micro-SaaS para crear, previsualizar y descargar facturas en PDF. Plan gratuito 
 | Ruta | Qué es |
 |------|--------|
 | `/` | Landing de marketing (precios, características, legales) |
-| `/app` | Aplicación funcional (login Magic Link, editor, PDF, upgrade) |
-| `/dashboard` | Mis facturas (requiere sesión + Plan Pro) |
+| `/login` | Magic Link (entrada al Portero) |
+| `/acceso-denegado` | Logueado pero sin suscripción activa |
+| `/app` | Aplicación (protegida por Portero) |
+| `/dashboard` | Mis facturas (protegida) |
+| `/admin` | Panel de suscriptores (solo `ADMIN_EMAILS`) |
 | `/terms`, `/privacy` | Documentos legales |
-| `/api/webhooks/hotmart` | Webhook Hotmart → otorga Pro por email |
+| `/api/webhooks/hotmart` | Webhook Hotmart → `subscribers` + Pro |
 | `/api/webhooks/stripe` | Webhook Stripe (fallback) |
 | `/api/checkout` | Crea sesión Stripe Checkout (fallback) |
+| `/api/admin/subscribers` | API del panel admin |
 
 El código vive en el subdirectorio `invoice-app/`.
 
