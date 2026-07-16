@@ -3,17 +3,30 @@
 import { useState } from 'react';
 import { supabase } from '@/utils/supabase/client';
 import { useToastStore } from '@/store/useToastStore';
+import { getHotmartCheckoutUrl } from '@/utils/hotmart/config';
 
 /**
- * Encapsula el inicio del checkout de Stripe (obtener el token de sesión,
- * llamar a /api/checkout y redirigir). Se usa tanto desde el Header como
- * desde la sección de precios de la landing page, para no duplicar lógica.
+ * Inicia el upgrade a Pro. Preferencia:
+ *   1. Hotmart — si `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` está definido (link-out).
+ *   2. Stripe Checkout — fallback vía `/api/checkout` (requiere sesión).
+ *
+ * Se usa desde el Header y desde la sección de precios de `/app`.
  */
 export function useUpgradeCheckout() {
   const [upgrading, setUpgrading] = useState(false);
   const showToast = useToastStore((s) => s.showToast);
 
   const startCheckout = async () => {
+    const hotmartUrl = getHotmartCheckoutUrl();
+    if (hotmartUrl) {
+      showToast(
+        'info',
+        'Te redirigimos a Hotmart. Usa el mismo correo con el que inicias sesión aquí para que se active tu Plan Pro.',
+      );
+      window.location.href = hotmartUrl;
+      return;
+    }
+
     setUpgrading(true);
     try {
       const {

@@ -11,8 +11,8 @@ import HotmartPricingSection from '@/components/landing/HotmartPricingSection';
  * visible en la sección de precios).
  *
  * La aplicación funcional (login, formulario, guardado en la nube) vive en
- * `/app`; los CTA de esta página usan `href="#"` como placeholder hasta que
- * se configuren los enlaces de checkout de Hotmart.
+ * `/app`. El CTA Pro usa `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` cuando está
+ * definido; si no, redirige a `/app` (Stripe como fallback).
  */
 export default function LandingPage() {
   return (

@@ -31,7 +31,10 @@ export default function PricingSection() {
   const { upgrading, startCheckout } = useUpgradeCheckout();
 
   const handleProClick = () => {
-    if (!session) {
+    // Hotmart no exige sesión previa (el webhook provisiona por email).
+    // Stripe sí: el checkout se crea para el usuario autenticado.
+    const usingHotmart = Boolean(process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL?.trim());
+    if (!usingHotmart && !session) {
       showToast('info', 'Inicia sesión desde el botón "Iniciar Sesión" arriba y vuelve a intentarlo.');
       return;
     }

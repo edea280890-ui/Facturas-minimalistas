@@ -51,9 +51,10 @@ export default function TermsPage() {
 
       <LegalSection title="3. Pagos, Facturación y Reembolsos">
         <p>
-          El Plan Pro se cobra como un pago único a través de un proveedor de pagos externo. No almacenamos
-          los datos de tu tarjeta de pago; estos son procesados directamente por nuestro proveedor de pagos
-          bajo sus propios términos y estándares de seguridad (PCI-DSS).
+          El Plan Pro se cobra como un pago único a través de un proveedor de pagos externo (Hotmart y, cuando
+          aplique, Stripe). No almacenamos los datos de tu tarjeta de pago; estos son procesados directamente
+          por dicho proveedor bajo sus propios términos y estándares de seguridad (PCI-DSS). Tras un pago
+          exitoso, el acceso Pro se asocia al correo electrónico usado en la compra.
         </p>
         <p>
           Ofrecemos un reembolso completo si lo solicitas dentro de los <strong>14 días</strong> posteriores a

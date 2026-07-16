@@ -62,11 +62,11 @@ export default function PrivacyPage() {
             <strong>Supabase:</strong> autenticación, base de datos y almacenamiento de archivos (logos).
           </li>
           <li>
-            <strong>Proveedor de procesamiento de pagos:</strong> gestiona el cobro del Plan Pro de forma
-            segura, bajo sus propios estándares de cumplimiento (incluyendo PCI-DSS).
+            <strong>Hotmart</strong> (y, cuando aplique, <strong>Stripe</strong>): procesamiento del cobro
+            del Plan Pro de forma segura, bajo sus propios estándares de cumplimiento (incluyendo PCI-DSS).
           </li>
           <li>
-            <strong>Proveedor de hosting/infraestructura:</strong> alojamiento de la aplicación web.
+            <strong>Vercel</strong> (u otro proveedor de hosting): alojamiento de la aplicación web.
           </li>
         </ul>
         <p>

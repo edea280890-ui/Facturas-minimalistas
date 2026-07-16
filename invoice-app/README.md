@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Generador de Facturas Minimalista
 
-## Getting Started
+Micro-SaaS para crear, previsualizar y descargar facturas en PDF. Plan gratuito + Plan Pro (pago único) con guardado en la nube.
 
-First, run the development server:
+## Estructura
+
+| Ruta | Qué es |
+|------|--------|
+| `/` | Landing de marketing (precios, características, legales) |
+| `/app` | Aplicación funcional (login Magic Link, editor, PDF, upgrade) |
+| `/dashboard` | Mis facturas (requiere sesión + Plan Pro) |
+| `/terms`, `/privacy` | Documentos legales |
+| `/api/webhooks/hotmart` | Webhook Hotmart → otorga Pro por email |
+| `/api/webhooks/stripe` | Webhook Stripe (fallback) |
+| `/api/checkout` | Crea sesión Stripe Checkout (fallback) |
+
+El código vive en el subdirectorio `invoice-app/`.
+
+## Desarrollo local
 
 ```bash
+cd invoice-app
+cp .env.example .env.local   # rellena valores
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Antes de usar nube/premium, aplica el schema en el SQL Editor de Supabase:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+invoice-app/supabase/schema.sql
+```
 
-## Learn More
+(es idempotente; se puede re-ejecutar).
 
-To learn more about Next.js, take a look at the following resources:
+## Variables de entorno
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ver `.env.example`. Resumen:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Supabase**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- **Hotmart** (recomendado): `HOTMART_HOTTOK`, `NEXT_PUBLIC_HOTMART_CHECKOUT_URL`
+- **Stripe** (opcional/fallback): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 
-## Deploy on Vercel
+Si `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` está definido, los botones “Comprar / Actualizar a Pro” abren Hotmart. Si no, `/app` usa Stripe Checkout.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Despliegue en Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Importa el repo en [Vercel](https://vercel.com/new).
+2. **Root Directory**: `invoice-app`.
+3. Framework: Next.js (autodetectado).
+4. Añade todas las variables de `.env.example` en Project → Settings → Environment Variables.
+5. Deploy.
+6. En Supabase → Authentication → URL Configuration, añade:
+   - Site URL: `https://TU-DOMINIO.vercel.app`
+   - Redirect URLs: `https://TU-DOMINIO.vercel.app/auth/callback`
+7. En Hotmart, configura el webhook a:
+   - `https://TU-DOMINIO.vercel.app/api/webhooks/hotmart`
+   - Mismo `hottok` que `HOTMART_HOTTOK`
+8. (Opcional) Stripe webhook → `/api/webhooks/stripe` con el signing secret en `STRIPE_WEBHOOK_SECRET`.
+
+## Scripts
+
+```bash
+npm run dev      # desarrollo
+npm run build    # build de producción
+npm run start    # servir build
+npm run lint     # ESLint
+```
+
+## Stack
+
+Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Zustand, `@react-pdf/renderer`, Supabase Auth/DB/Storage, Hotmart (+ Stripe como fallback).

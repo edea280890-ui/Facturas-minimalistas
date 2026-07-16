@@ -18,7 +18,8 @@ const InvoicePreviewDynamic = dynamic(
 );
 
 /**
- * Aplicación funcional (editor de facturas + login + upgrade a Pro real vía Stripe).
+ * Aplicación funcional (editor de facturas + login + upgrade a Pro vía Hotmart
+ * si `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` está definido, o Stripe como fallback).
  * La página pública de marketing vive en `/` (app/page.tsx); esta ruta es el
  * producto en sí, al que se llega desde los CTA de la landing.
  */

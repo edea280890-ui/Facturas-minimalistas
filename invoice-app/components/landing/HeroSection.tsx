@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function HeroSection() {
   return (
@@ -13,16 +14,12 @@ export default function HeroSection() {
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          {/*
-            TODO(Hotmart): reemplazar este href="#" por el enlace de checkout de
-            Hotmart cuando esté disponible.
-          */}
-          <a
-            href="#"
+          <Link
+            href="/app"
             className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-slate-800 sm:w-auto"
           >
             Comenzar ahora
-          </a>
+          </Link>
           <a
             href="#precios"
             className="inline-flex w-full items-center justify-center rounded-lg border border-slate-200 px-6 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:w-auto"
