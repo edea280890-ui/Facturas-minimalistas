@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Toaster from "@/components/ui/Toaster";
 import ProfileSync from "@/components/providers/ProfileSync";
+import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,7 +32,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ProfileSync />
-        {children}
+        <div className="flex-1">{children}</div>
+        <Footer />
         <Toaster />
       </body>
     </html>
