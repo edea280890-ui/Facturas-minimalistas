@@ -1,40 +1,26 @@
-'use client';
+import PublicNav from '@/components/landing/PublicNav';
+import HeroSection from '@/components/landing/HeroSection';
+import FeaturesSection from '@/components/landing/FeaturesSection';
+import HotmartPricingSection from '@/components/landing/HotmartPricingSection';
 
-import dynamic from 'next/dynamic';
-import InvoiceForm from '@/components/invoice/InvoiceForm';
-import Header from '@/components/layout/Header';
-import PricingSection from '@/components/landing/PricingSection';
-
-const InvoicePreviewDynamic = dynamic(
-  () => import('@/components/invoice/InvoicePreview'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-full min-h-[600px] flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-slate-400">
-        Cargando visor...
-      </div>
-    ),
-  }
-);
-
-export default function Home() {
+/**
+ * Landing page pública de marketing. A propósito NO tiene ninguna dependencia
+ * de Supabase/Stripe/estado de sesión: es puramente presentacional, pensada
+ * para conversión y para cumplir requisitos de compliance de pasarelas de
+ * pago (enlaces legales visibles vía el Footer global, modelo de negocio
+ * visible en la sección de precios).
+ *
+ * La aplicación funcional (login, formulario, guardado en la nube) vive en
+ * `/app`; los CTA de esta página usan `href="#"` como placeholder hasta que
+ * se configuren los enlaces de checkout de Hotmart.
+ */
+export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-slate-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <Header />
-
-        <PricingSection />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <section className="h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-8">
-            <InvoiceForm />
-          </section>
-          
-          <section className="h-[calc(100vh-120px)]">
-            <InvoicePreviewDynamic />
-          </section>
-        </div>
-      </div>
+    <main className="min-h-screen bg-white">
+      <PublicNav />
+      <HeroSection />
+      <FeaturesSection />
+      <HotmartPricingSection />
     </main>
   );
 }
