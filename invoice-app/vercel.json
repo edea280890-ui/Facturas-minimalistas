@@ -1,7 +1,0 @@
-# Opcional. Con Root Directory = invoice-app en el dashboard de Vercel
-# normalmente NO hace falta este archivo. Se deja vacío de rewrites/builds
-# a propósito: Next.js gestiona el enrutado; un vercel.json con "builds"
-# o catch-all rewrites suele causar 404 en App Router.
-{
-  "framework": "nextjs"
-}

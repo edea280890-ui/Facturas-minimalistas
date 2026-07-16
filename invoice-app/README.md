@@ -41,15 +41,18 @@ invoice-app/supabase/schema.sql
 
 ## Portero Digital (acceso cerrado)
 
-Flujo: Hotmart aprueba → webhook guarda el email en `subscribers` → el usuario inicia sesión con Magic Link → el middleware solo deja pasar emails `active`.
+Flujo: Hotmart aprueba → webhook guarda el email en `subscribers` → el usuario inicia sesión con Magic Link → layouts de servidor solo dejan pasar emails `active`.
+
+**Importante (Vercel):** no uses `middleware.ts`/`proxy.ts` con este stack; causa 404 globales en Next.js 16. El gate está en `utils/portero.ts` + layouts.
 
 1. Ejecuta en Supabase SQL Editor: [`supabase/subscribers.sql`](./supabase/subscribers.sql) (o el schema completo).
 2. Define `ADMIN_EMAILS` en Vercel / `.env.local`.
 3. Configura el webhook Hotmart → `/api/webhooks/hotmart`.
 4. Panel interno: `/admin` (solo emails admin).
+5. Vercel: Root Directory = `invoice-app`, Framework Preset = **Next.js**, rama `main`, redeploy **sin** cache. No añadas `vercel.json` con `rewrites`/`builds`.
 
 Rutas públicas: `/`, `/login`, `/acceso-denegado`, `/terms`, `/privacy`, webhooks.
-Rutas protegidas: `/app`, `/dashboard`, `/admin`.
+Rutas protegidas (layouts): `/app`, `/dashboard`, `/admin`.
 
 ## Variables de entorno
 
