@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/utils/supabase/admin';
+import { upsertSubscriber } from '@/utils/subscribers';
 import { HotmartWebhookPayload, HOTMART_APPROVED_STATUSES } from '@/types/hotmart';
 
 export const runtime = 'nodejs';
@@ -7,16 +8,10 @@ export const runtime = 'nodejs';
 /**
  * POST /api/webhooks/hotmart
  *
- * Recibe las notificaciones de compra de Hotmart y, cuando el pago fue
- * aprobado, otorga acceso Pro al comprador en nuestra base de datos.
- *
- * Seguridad: Hotmart no firma el payload con HMAC (a diferencia de Stripe),
- * así que la validación consiste en comparar el `hottok` (un token secreto
- * que configuras en el panel de Hotmart) contra `process.env.HOTMART_HOTTOK`.
- * Hotmart puede enviar ese token en distintos lugares según la configuración
- * del webhook, así que revisamos, en este orden: la cabecera
- * `X-HOTMART-HOTTOK`, el query string (`?hottok=...`, si así se configuró la
- * URL del webhook en el panel) y el propio cuerpo JSON (`{ "hottok": "..." }`).
+ * 1. Valida hottok.
+ * 2. Extrae email + status de la compra.
+ * 3. Si aprobado → upsert en `subscribers` (active) + provisiona Auth/Pro.
+ * 4. Si cancelado/reembolsado → marca subscriber canceled y revoca premium.
  */
 export async function POST(request: Request) {
   try {
@@ -53,14 +48,13 @@ export async function POST(request: Request) {
     const isApproved = status ? HOTMART_APPROVED_STATUSES.includes(status.toUpperCase()) : false;
 
     if (!isApproved) {
-      // Compra cancelada, reembolsada, pendiente, etc.: reconocemos el evento
-      // sin otorgar acceso. Devolver 200 evita que Hotmart siga reintentando.
+      await revokeAccessByEmail(email);
       return NextResponse.json({ received: true, granted: false, status: status ?? null });
     }
 
-    await grantPremiumAccessByEmail(email);
+    await grantAccessByEmail(email);
 
-    return NextResponse.json({ received: true, granted: true, email });
+    return NextResponse.json({ received: true, granted: true, email: email.trim().toLowerCase() });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error al procesar el webhook de Hotmart.';
     return NextResponse.json({ error: message }, { status: 500 });
@@ -86,40 +80,22 @@ function extractPurchaseStatus(payload: HotmartWebhookPayload): string | null {
 }
 
 /**
- * ── AQUÍ VA LA LÓGICA DE NEGOCIO ─────────────────────────────────────────
- *
- * Otorga acceso Pro al comprador identificado por su correo electrónico:
- *   1. Busca si ya existe un usuario de Supabase Auth con ese correo.
- *   2. Si no existe, lo crea (auto-provisioning): el comprador podrá iniciar
- *      sesión más adelante con un Magic Link enviado a ese mismo correo,
- *      sin necesidad de contraseña.
- *   3. Marca `profiles.is_premium = true` para ese usuario.
- *
- * Notas / limitaciones a revisar antes de producción:
- * - La búsqueda por email usa `auth.admin.listUsers()` paginado, comparando
- *   el email en memoria con `===` exacto. ¡IMPORTANTE! No usar el parámetro
- *   `?email=` del endpoint REST de administración de GoTrue como filtro: se
- *   verificó manualmente que en este proyecto ese parámetro NO filtra de
- *   forma exacta (devuelve un usuario arbitrario sin importar el valor), lo
- *   cual causó el borrado accidental de una cuenta real durante las pruebas
- *   de este endpoint. Para volúmenes altos de usuarios, la alternativa segura
- *   es una función RPC en Postgres que consulte `auth.users` por email.
- * - No se ha probado contra un payload real de Hotmart todavía: verifica que
- *   `extractBuyerEmail`/`extractPurchaseStatus` matcheen el payload real que
- *   llegue a este endpoint (puedes loguear `payload` temporalmente) y ajusta
- *   `types/hotmart.ts` si el formato difiere.
- * - Este flujo no distingue entre "Plan Básico" y "Plan Pro" de Hotmart; si
- *   se venden productos distintos, usa `payload.data?.product?.id` para
- *   diferenciar qué acceso otorgar.
+ * Lista de invitados + acceso Pro:
+ * 1. Upsert en `subscribers` con status active.
+ * 2. Busca o crea usuario Auth (Magic Link).
+ * 3. Marca `profiles.is_premium = true` (compatibilidad con RLS de invoices).
  */
-async function grantPremiumAccessByEmail(email: string): Promise<void> {
+async function grantAccessByEmail(email: string): Promise<void> {
   const supabaseAdmin = getSupabaseAdminClient();
+  const normalized = email.trim().toLowerCase();
 
-  let userId = await findUserIdByEmail(email);
+  await upsertSubscriber(supabaseAdmin, normalized, 'active');
+
+  let userId = await findUserIdByEmail(normalized);
 
   if (!userId) {
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: normalized,
       email_confirm: true,
     });
     if (error) throw error;
@@ -127,7 +103,7 @@ async function grantPremiumAccessByEmail(email: string): Promise<void> {
   }
 
   if (!userId) {
-    throw new Error(`No se pudo crear ni encontrar un usuario de Supabase para ${email}.`);
+    throw new Error(`No se pudo crear ni encontrar un usuario de Supabase para ${normalized}.`);
   }
 
   const { error: upsertError } = await supabaseAdmin
@@ -135,6 +111,23 @@ async function grantPremiumAccessByEmail(email: string): Promise<void> {
     .upsert({ id: userId, is_premium: true }, { onConflict: 'id' });
 
   if (upsertError) throw upsertError;
+}
+
+async function revokeAccessByEmail(email: string): Promise<void> {
+  const supabaseAdmin = getSupabaseAdminClient();
+  const normalized = email.trim().toLowerCase();
+
+  await upsertSubscriber(supabaseAdmin, normalized, 'canceled');
+
+  const userId = await findUserIdByEmail(normalized);
+  if (!userId) return;
+
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .update({ is_premium: false })
+    .eq('id', userId);
+
+  if (error) throw error;
 }
 
 async function findUserIdByEmail(email: string): Promise<string | null> {
@@ -146,8 +139,6 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
     const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
     if (error) throw error;
 
-    // Comparación EXACTA en memoria. No confiar en filtros de query string
-    // del endpoint admin de GoTrue para esto (ver nota arriba).
     const match = data.users.find((user) => user.email?.toLowerCase() === normalizedEmail);
     if (match) return match.id;
 

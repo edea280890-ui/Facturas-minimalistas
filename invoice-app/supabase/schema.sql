@@ -1,5 +1,5 @@
 -- =============================================================================
--- Generador de Facturas - Esquema completo (profiles, invoices, storage)
+-- Generador de Facturas - Esquema completo (subscribers, profiles, invoices, storage)
 -- Ejecutar en: Supabase Dashboard -> SQL Editor
 -- Es seguro volver a ejecutar este script completo en cualquier momento: usa
 -- `if not exists` / `drop ... if exists` / `on conflict do nothing` en todo.
@@ -7,6 +7,32 @@
 
 -- Necesario para gen_random_uuid()
 create extension if not exists "pgcrypto";
+
+-- -----------------------------------------------------------------------------
+-- Tabla `subscribers`: "lista de invitados" del Portero Digital.
+-- El webhook de Hotmart hace upsert aquí; el middleware solo deja pasar emails
+-- con status = 'active'. El panel /admin lista y puede dar de baja (canceled).
+-- -----------------------------------------------------------------------------
+create table if not exists public.subscribers (
+  email      text primary key,
+  status     text not null default 'active' check (status in ('active', 'canceled')),
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  updated_at timestamptz not null default timezone('utc'::text, now())
+);
+
+create index if not exists subscribers_status_idx on public.subscribers (status);
+
+alter table public.subscribers enable row level security;
+
+-- Cada usuario autenticado solo puede leer SU propia fila (por email del JWT).
+drop policy if exists "subscribers_select_own" on public.subscribers;
+create policy "subscribers_select_own"
+  on public.subscribers
+  for select
+  to authenticated
+  using (lower(email) = lower(coalesce(auth.jwt()->>'email', '')));
+
+-- Sin INSERT/UPDATE/DELETE para "authenticated": solo Service Role (webhooks /admin).
 
 -- -----------------------------------------------------------------------------
 -- Tabla `profiles`: 1 fila por usuario de `auth.users`, con el estado premium.
@@ -102,6 +128,11 @@ create trigger invoices_set_updated_at
 drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at
   before update on public.profiles
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists subscribers_set_updated_at on public.subscribers;
+create trigger subscribers_set_updated_at
+  before update on public.subscribers
   for each row execute function public.set_updated_at();
 
 -- -----------------------------------------------------------------------------

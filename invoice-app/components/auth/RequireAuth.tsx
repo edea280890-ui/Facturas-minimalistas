@@ -9,10 +9,8 @@ interface RequireAuthProps {
 }
 
 /**
- * Envuelve rutas que requieren sesión activa. Como la app es enteramente
- * client-side (sin @supabase/ssr), la protección se aplica en el cliente:
- * mientras se resuelve la sesión se muestra un estado de carga y, si no hay
- * sesión, un CTA para iniciar sesión desde la página principal.
+ * Capa client-side de respaldo. El Portero Digital (middleware) ya exige
+ * sesión + suscriptor activo; este componente cubre el caso de hidratación.
  */
 export default function RequireAuth({ children }: RequireAuthProps) {
   const session = useAuthStore((s) => s.session);
@@ -36,10 +34,10 @@ export default function RequireAuth({ children }: RequireAuthProps) {
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
         <p className="text-slate-600">Debes iniciar sesión para ver esta página.</p>
         <Link
-          href="/app"
+          href="/login"
           className="text-sm font-medium px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
         >
-          Volver e iniciar sesión
+          Ir a iniciar sesión
         </Link>
       </div>
     );

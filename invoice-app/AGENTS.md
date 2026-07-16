@@ -10,9 +10,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Stack: Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS v4, plus `zustand` (state) and `@react-pdf/renderer` (PDF generation).
 - Standard scripts (see `invoice-app/package.json`): `npm run dev` (dev server, port 3000), `npm run build`, `npm start`, `npm run lint`.
 - Dependencies are installed by the startup update script; no manual install needed for a fresh cloud VM.
+- **Portero Digital (acceso cerrado)**:
+  - Tabla `public.subscribers` (`email` PK, `status` active|canceled) — ver `supabase/subscribers.sql` o el schema completo.
+  - Webhook Hotmart (`app/api/webhooks/hotmart/route.ts`): en compra aprobada hace upsert `subscribers` + provisiona Auth + `profiles.is_premium`; en no-aprobada marca `canceled` y revoca premium.
+  - Middleware `proxy.ts` (Next.js 16; cookies vía `@supabase/ssr`): protege `/app`, `/dashboard`, `/admin` y APIs internas. Sin sesión → `/login`. Sin suscriptor activo → `/acceso-denegado`. Emails en `ADMIN_EMAILS` hacen bypass y pueden usar `/admin`.
+  - Panel `/admin` + `GET|PATCH /api/admin/subscribers`: lista activos, dar de baja / reactivar.
+  - Auth sigue siendo **Supabase Magic Link** (no Clerk/NextAuth) para no duplicar identidad. El cliente browser usa `createBrowserClient` de `@supabase/ssr` (sesión en cookies).
+  - Obligatorio aplicar el SQL de `subscribers` en el SQL Editor de Supabase antes de probar el portero.
 - Local env vars live in `invoice-app/.env.local`, which is git-ignored (Next.js convention) and therefore does NOT persist in the repo or on fresh cloud VMs. Recreate from `invoice-app/.env.example` (or provide the vars as Cursor Secrets) when Supabase/payment-backed features are needed. Next loads it at startup/reload — watch for `Reload env: .env.local` in the dev log. Required / common vars:
   - `NEXT_PUBLIC_SUPABASE_URL` (the `https://<ref>.supabase.co` project URL, NOT a publishable key) and `NEXT_PUBLIC_SUPABASE_ANON_KEY` — used by the browser client and by server routes to validate user JWTs.
   - `SUPABASE_SERVICE_ROLE_KEY` (server-only, no `NEXT_PUBLIC_` prefix) — used by Hotmart/Stripe webhooks (`utils/supabase/admin.ts`) to update `profiles.is_premium`, bypassing RLS. Never expose this to the client.
+  - `ADMIN_EMAILS` — comma-separated admin emails for `/admin` and portero bypass.
   - `HOTMART_HOTTOK` (server-only) — secret for `app/api/webhooks/hotmart/route.ts`.
   - `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` — public Hotmart checkout link used by landing Pro CTAs and by `hooks/useUpgradeCheckout.ts` when set.
   - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` (server-only) — Stripe fallback when Hotmart checkout URL is not set.

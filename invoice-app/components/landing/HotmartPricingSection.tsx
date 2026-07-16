@@ -17,42 +17,42 @@ interface Plan {
 
 /**
  * Tabla de precios de la landing pública. Presentacional: no consulta
- * Supabase ni Stripe. El CTA Pro usa `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` si
- * está configurado; si no, envía al usuario a `/app` (donde Stripe sigue
- * disponible como fallback).
+ * Supabase ni Stripe. Tras el Portero Digital, el acceso a `/app` requiere
+ * suscripción activa: el plan de entrada invita a iniciar sesión y el Pro
+ * enlaza a Hotmart (o a `/login` si aún no hay URL de checkout).
  */
 export default function HotmartPricingSection() {
   const hotmartUrl = getHotmartCheckoutUrl();
 
   const plans: Plan[] = [
     {
-      name: 'Plan Básico',
-      price: 'Gratis',
-      priceNote: 'Para siempre',
-      description: 'Ideal para probar la herramienta o para quien factura solo de vez en cuando.',
+      name: 'Ya soy suscriptor',
+      price: 'Acceso',
+      priceNote: 'Con tu correo de compra',
+      description: 'Si ya compraste el Plan Pro, inicia sesión con el mismo correo para entrar a la app.',
       features: [
-        'Facturas ilimitadas',
-        'Previsualización en PDF en vivo',
-        'Descarga en PDF con un clic',
-        'Multi-moneda e impuestos configurables',
+        'Editor de facturas y PDF en vivo',
+        'Descarga ilimitada de PDFs',
+        'Guardado en la nube',
+        'Panel Mis facturas',
       ],
-      ctaLabel: 'Comenzar gratis',
-      href: '/app',
+      ctaLabel: 'Iniciar sesión',
+      href: '/login',
     },
     {
       name: 'Plan Pro',
       price: '$15 USD',
       priceNote: 'Pago único — de por vida',
-      description: 'Para freelancers y pymes que necesitan guardar y organizar todas sus facturas.',
+      description: 'Compra en Hotmart. El webhook te añade a la lista de acceso automáticamente.',
       features: [
-        'Todo lo del Plan Básico',
+        'Acceso completo a la aplicación',
         'Guarda tus facturas en la nube',
-        'Historial de clientes: lista, edita y elimina',
+        'Historial: lista, edita y elimina',
         'Numeración automática secuencial',
         'Logo de tu empresa en el PDF',
       ],
       ctaLabel: 'Comprar ahora',
-      href: hotmartUrl || '/app',
+      href: hotmartUrl || '/login',
       external: Boolean(hotmartUrl),
       highlighted: true,
     },

@@ -150,6 +150,9 @@ export default function Header() {
               <Link href="/dashboard" className={btnGhost}>
                 Mis facturas
               </Link>
+              <Link href="/admin" className={btnGhost}>
+                Admin
+              </Link>
               <button onClick={newInvoice} className={btnGhost}>
                 Nueva factura
               </button>

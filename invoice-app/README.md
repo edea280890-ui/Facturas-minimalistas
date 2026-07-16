@@ -35,6 +35,18 @@ invoice-app/supabase/schema.sql
 
 (es idempotente; se puede re-ejecutar).
 
+## Portero Digital (acceso cerrado)
+
+Flujo: Hotmart aprueba → webhook guarda el email en `subscribers` → el usuario inicia sesión con Magic Link → el middleware solo deja pasar emails `active`.
+
+1. Ejecuta en Supabase SQL Editor: [`supabase/subscribers.sql`](./supabase/subscribers.sql) (o el schema completo).
+2. Define `ADMIN_EMAILS` en Vercel / `.env.local`.
+3. Configura el webhook Hotmart → `/api/webhooks/hotmart`.
+4. Panel interno: `/admin` (solo emails admin).
+
+Rutas públicas: `/`, `/login`, `/acceso-denegado`, `/terms`, `/privacy`, webhooks.
+Rutas protegidas: `/app`, `/dashboard`, `/admin`.
+
 ## Variables de entorno
 
 Ver `.env.example`. Resumen:

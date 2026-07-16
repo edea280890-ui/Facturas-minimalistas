@@ -21,7 +21,7 @@ export default function PublicNav() {
             Precios
           </a>
           <Link
-            href="/app"
+            href="/login"
             className="text-sm font-medium px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           >
             Iniciar sesión

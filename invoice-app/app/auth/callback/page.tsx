@@ -13,8 +13,10 @@ type CallbackStatus = 'processing' | 'success' | 'error';
  * Soporta los dos flujos que puede usar Supabase Auth:
  * - PKCE: la URL trae `?code=...`, que se intercambia explícitamente por una sesión.
  * - Implícito: la URL trae el token en el fragmento (#access_token=...), que el
- *   cliente de navegador (creado con `detectSessionInUrl: true`) ya procesa solo
- *   al cargar la página; aquí simplemente esperamos a que la sesión aparezca.
+ *   cliente de navegador ya procesa al cargar; aquí esperamos a que la sesión aparezca.
+ *
+ * Tras confirmar, redirige a `?next=` (por defecto `/app`). El middleware del
+ * Portero validará si el email está en `subscribers`.
  */
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -24,18 +26,20 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     let cancelled = false;
 
-    const finish = (ok: boolean, text: string) => {
-      if (cancelled) return;
-      setStatus(ok ? 'success' : 'error');
-      setMessage(text);
-      if (ok) {
-        setTimeout(() => router.replace('/app'), 1200);
-      }
-    };
-
     const run = async () => {
+      const url = new URL(window.location.href);
+      const nextPath = url.searchParams.get('next') || '/app';
+
+      const finish = (ok: boolean, text: string) => {
+        if (cancelled) return;
+        setStatus(ok ? 'success' : 'error');
+        setMessage(text);
+        if (ok) {
+          setTimeout(() => router.replace(nextPath), 1200);
+        }
+      };
+
       try {
-        const url = new URL(window.location.href);
         const code = url.searchParams.get('code');
 
         if (code) {
@@ -73,7 +77,7 @@ export default function AuthCallbackPage() {
         <p className={status === 'error' ? 'text-red-600' : 'text-slate-500'}>{message}</p>
         {status === 'error' && (
           <Link
-            href="/app"
+            href="/login"
             className="mt-4 inline-block text-sm font-medium px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             Volver al inicio de sesión
