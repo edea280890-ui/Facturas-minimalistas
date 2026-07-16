@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { getSupabaseAdminClient } from '@/utils/supabase/admin';
 import { isAdminEmail } from '@/utils/adminEmails';
@@ -8,8 +9,11 @@ import type { Subscriber } from '@/utils/subscribers';
 export const dynamic = 'force-dynamic';
 
 /**
- * Panel del Portero Digital (solo ADMIN_EMAILS).
- * Los datos se cargan en el servidor; las acciones viven en el client component.
+ * Panel de Administración — lista de suscriptores del Portero Digital.
+ *
+ * Seguridad (importante): NO usamos el Service Role sin comprobar identidad.
+ * Solo emails en `ADMIN_EMAILS` pueden ver esta página. El proxy también
+ * bloquea `/admin` al resto de usuarios.
  */
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
@@ -18,34 +22,38 @@ export default async function AdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user?.email || !isAdminEmail(user.email)) {
-    redirect('/app');
+    redirect('/login?next=/admin');
   }
 
+  // Service Role solo en servidor (nunca se envía al navegador).
   const admin = getSupabaseAdminClient();
-  const { data, error } = await admin
+  const { data: subscribers, error } = await admin
     .from('subscribers')
     .select('email, status, created_at, updated_at')
     .order('created_at', { ascending: false });
 
   if (error) {
     return (
-      <main className="min-h-screen bg-slate-50 px-4 py-10">
-        <div className="mx-auto max-w-4xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          No se pudo cargar suscriptores: {error.message}. ¿Ejecutaste{' '}
-          <code>supabase/subscribers.sql</code> en el SQL Editor?
-        </div>
-      </main>
+      <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+        <h1>Panel de Administración</h1>
+        <p style={{ color: '#b91c1c' }}>Error cargando datos: {error.message}</p>
+        <p style={{ color: '#64748b', fontSize: 14 }}>
+          Si la tabla no existe, ejecuta <code>invoice-app/supabase/subscribers.sql</code> en el
+          SQL Editor de Supabase.
+        </p>
+        <Link href="/app">← Volver a la app</Link>
+      </div>
     );
   }
 
-  const subscribers = (data ?? []) as Subscriber[];
-  const activeCount = subscribers.filter((s) => s.status === 'active').length;
+  const rows = (subscribers ?? []) as Subscriber[];
+  const activeCount = rows.filter((s) => s.status === 'active').length;
 
   return (
     <AdminSubscribersClient
-      initialSubscribers={subscribers}
+      initialSubscribers={rows}
       initialActiveCount={activeCount}
-      initialTotalCount={subscribers.length}
+      initialTotalCount={rows.length}
     />
   );
 }
