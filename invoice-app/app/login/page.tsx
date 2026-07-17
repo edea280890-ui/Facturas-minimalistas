@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
 import { getHotmartCheckoutUrl } from '@/utils/hotmart/config';
+import { buildAuthCallbackUrl, sanitizeNextPath } from '@/utils/supabase/authRedirect';
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get('error');
+  const nextPath = sanitizeNextPath(searchParams.get('next'));
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -31,9 +33,7 @@ function LoginForm() {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          // Callback limpio: el Route Handler decide el destino (/app).
-          emailRedirectTo:
-            typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+          emailRedirectTo: buildAuthCallbackUrl(nextPath),
         },
       });
       if (otpError) throw otpError;

@@ -10,6 +10,7 @@ import { useProfileStore, pollProfileUntilPremium } from '@/store/useProfileStor
 import { useUpgradeCheckout } from '@/hooks/useUpgradeCheckout';
 import PremiumButton from '@/components/PremiumButton';
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from '@/utils/brand';
+import { buildAuthCallbackUrl } from '@/utils/supabase/authRedirect';
 
 export default function Header() {
   const session = useAuthStore((s) => s.session);
@@ -73,7 +74,7 @@ export default function Header() {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+          emailRedirectTo: buildAuthCallbackUrl('/app'),
         },
       });
       if (error) throw error;

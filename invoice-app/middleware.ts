@@ -1,5 +1,6 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseMiddlewareClient } from '@/utils/supabase/middleware';
+import { sanitizeNextPath } from '@/utils/supabase/authRedirect';
 
 /**
  * Middleware mínimo: solo refresca la sesión de Supabase en cookies.
@@ -13,6 +14,18 @@ import { createSupabaseMiddlewareClient } from '@/utils/supabase/middleware';
  *   sesión, deja pasar la request en vez de devolver 500 sitio-completo.
  */
 export async function middleware(request: NextRequest) {
+  // Si Supabase redirige a la Site URL (p. ej. `/`) con `?code=`, reenviar al callback.
+  const code = request.nextUrl.searchParams.get('code');
+  const tokenHash = request.nextUrl.searchParams.get('token_hash');
+  if ((code || tokenHash) && request.nextUrl.pathname !== '/auth/callback') {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = '/auth/callback';
+    if (!callbackUrl.searchParams.has('next')) {
+      callbackUrl.searchParams.set('next', sanitizeNextPath(null));
+    }
+    return NextResponse.redirect(callbackUrl);
+  }
+
   const { supabase, supabaseResponse } = await createSupabaseMiddlewareClient(request);
 
   if (supabase) {
