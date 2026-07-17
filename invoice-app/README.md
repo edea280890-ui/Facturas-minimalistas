@@ -73,7 +73,7 @@ Si `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` está definido, los botones “Comprar / A
 5. Deploy.
 6. En Supabase → Authentication → URL Configuration, añade:
    - Site URL: `https://TU-DOMINIO.vercel.app`
-   - Redirect URLs: `https://TU-DOMINIO.vercel.app/auth/callback`
+   - Redirect URLs: `https://TU-DOMINIO.vercel.app/auth/callback**` (incluye `?next=`)
 7. En Hotmart, configura el webhook a:
    - `https://TU-DOMINIO.vercel.app/api/webhooks/hotmart`
    - Mismo `hottok` que `HOTMART_HOTTOK`
