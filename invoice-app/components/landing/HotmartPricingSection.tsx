@@ -17,42 +17,47 @@ interface Plan {
 
 /**
  * Tabla de precios de la landing pública. Presentacional: no consulta
- * Supabase ni Stripe. Tras el Portero Digital, el acceso a `/app` requiere
- * suscripción activa: el plan de entrada invita a iniciar sesión y el Pro
- * enlaza a Hotmart (o a `/login` si aún no hay URL de checkout).
+ * Supabase ni Stripe.
+ *
+ * El Plan Gratuito es el plan por defecto: su CTA lleva directo a `/app`
+ * (el editor), sin login ni pago. El Plan Pro (guardado en la nube) es
+ * estrictamente opt-in vía clic explícito en "Comprar ahora" → Hotmart (o el
+ * fallback de Stripe dentro de `/app` si aún no hay URL de checkout
+ * configurada). Nunca redirigir automáticamente al checkout: solo al hacer
+ * clic aquí.
  */
 export default function HotmartPricingSection() {
   const hotmartUrl = getHotmartCheckoutUrl();
 
   const plans: Plan[] = [
     {
-      name: 'Ya soy suscriptor',
-      price: 'Acceso',
-      priceNote: 'Con tu correo de compra',
-      description: 'Si ya compraste el Plan Pro, inicia sesión con el mismo correo para entrar a la app.',
+      name: 'Plan Gratuito',
+      price: 'Gratis',
+      priceNote: 'Para siempre, sin tarjeta',
+      description: 'Crea, previsualiza y descarga tus facturas en PDF sin costo y sin crear una cuenta.',
       features: [
-        'Editor de facturas y PDF en vivo',
-        'Descarga ilimitada de PDFs',
-        'Guardado en la nube',
-        'Panel Mis facturas',
+        'Facturas ilimitadas',
+        'Previsualización en PDF en vivo',
+        'Descarga en PDF con un clic',
+        'Multi-divisa e impuestos configurables',
       ],
-      ctaLabel: 'Iniciar sesión',
-      href: '/login',
+      ctaLabel: 'Empezar gratis',
+      href: '/app',
     },
     {
       name: 'Plan Pro',
       price: '$15 USD',
       priceNote: 'Pago único — de por vida',
-      description: 'Compra en Hotmart. El webhook te añade a la lista de acceso automáticamente.',
+      description: 'Todo lo del Plan Gratuito, además de guardar tus facturas en la nube.',
       features: [
-        'Acceso completo a la aplicación',
+        'Todo lo del Plan Gratuito',
         'Guarda tus facturas en la nube',
         'Historial: lista, edita y elimina',
         'Numeración automática secuencial',
         'Logo de tu empresa en el PDF',
       ],
       ctaLabel: 'Comprar ahora',
-      href: hotmartUrl || '/login',
+      href: hotmartUrl || '/app#precios',
       external: Boolean(hotmartUrl),
       highlighted: true,
     },

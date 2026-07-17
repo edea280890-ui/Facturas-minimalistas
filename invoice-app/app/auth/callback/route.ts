@@ -11,7 +11,8 @@ export const runtime = 'nodejs';
  * en cookies HTTP vía @supabase/ssr (las cookies se escriben en la Response
  * de redirect, no solo en el cookie store mutable).
  *
- * - Éxito → `/admin`
+ * - Éxito → `/app` (el editor, de acceso libre — plan Gratuito por defecto).
+ *   Desde ahí cualquier admin puede entrar a `/admin` con el enlace del Header.
  * - Fallo (otp_expired, invalid_token, sin code, etc.) → `/login?error=auth_failed`
  *   Nunca redirige a `/` con errores en la query.
  */
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
     const supabaseAnonKey = requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
     // Response provisional: exchangeCodeForSession escribe cookies aquí.
-    const redirectResponse = NextResponse.redirect(new URL('/admin', origin));
+    const redirectResponse = NextResponse.redirect(new URL('/app', origin));
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {

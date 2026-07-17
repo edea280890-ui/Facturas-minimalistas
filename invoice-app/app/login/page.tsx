@@ -31,7 +31,7 @@ function LoginForm() {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          // Callback limpio: el Route Handler decide el destino (/admin).
+          // Callback limpio: el Route Handler decide el destino (/app).
           emailRedirectTo:
             typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
         },
@@ -49,7 +49,8 @@ function LoginForm() {
     <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
       <h1 className="text-2xl font-bold text-slate-900">Iniciar sesión</h1>
       <p className="mt-2 text-sm text-slate-500">
-        Acceso exclusivo para suscriptores. Te enviamos un enlace mágico a tu correo — sin contraseña.
+        Te enviamos un enlace mágico a tu correo — sin contraseña. El Plan Gratuito no necesita cuenta;
+        inicia sesión solo si quieres guardar facturas en la nube (Plan Pro) o gestionar tu cuenta.
       </p>
 
       {sent ? (
@@ -83,18 +84,21 @@ function LoginForm() {
       )}
 
       <div className="mt-8 border-t border-slate-100 pt-6 text-center text-sm text-slate-500">
-        <p>¿Aún no tienes acceso?</p>
+        <Link href="/app" className="font-semibold text-slate-900 underline">
+          Continuar con el Plan Gratuito sin iniciar sesión
+        </Link>
+        <p className="mt-4">¿Quieres guardar tus facturas en la nube?</p>
         {hotmartUrl ? (
           <a
             href={hotmartUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-block font-semibold text-slate-900 underline"
+            className="mt-1 inline-block font-semibold text-slate-900 underline"
           >
             Comprar Plan Pro en Hotmart
           </a>
         ) : (
-          <Link href="/#precios" className="mt-2 inline-block font-semibold text-slate-900 underline">
+          <Link href="/#precios" className="mt-1 inline-block font-semibold text-slate-900 underline">
             Ver precios
           </Link>
         )}

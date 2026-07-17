@@ -11,6 +11,15 @@ import { MissingEnvVarError } from '@/utils/env';
  * Next.js 16 + `proxy.ts`/`middleware.ts` con `@supabase/ssr` en Vercel
  * puede romper el routing manifest y devolver 404 en TODAS las rutas.
  * La protección vive aquí (layouts / route handlers).
+ *
+ * IMPORTANTE — alcance de `requireActiveSubscriberOrRedirect`: NUNCA debe
+ * usarse para gatear `/app` (el editor). El plan Gratuito es el plan por
+ * defecto y debe poder crear, previsualizar y descargar facturas sin login
+ * ni suscripción. Solo las funciones realmente de pago están detrás de este
+ * guard: `/dashboard` ("Mis facturas" / guardado en la nube) y, vía
+ * `requireAdminOrRedirect`, `/admin`. Bloquear `/app` con esto fue exactamente
+ * el bug reportado: usuarios nuevos sin suscripción quedaban forzados al
+ * checkout sin poder usar el plan gratuito.
  */
 
 /**
@@ -35,7 +44,7 @@ async function getSupabaseOrRedirectToLogin(nextPath: string): Promise<SupabaseC
   }
 }
 
-export async function requireActiveSubscriberOrRedirect(nextPath: string = '/app') {
+export async function requireActiveSubscriberOrRedirect(nextPath: string = '/dashboard') {
   const supabase = await getSupabaseOrRedirectToLogin(nextPath);
   const {
     data: { user },
@@ -75,8 +84,9 @@ export async function requireAdminOrRedirect() {
   }
 
   if (!isAdminEmail(user.email)) {
-    // Sesión válida pero sin privilegio admin → app, no login (evita bucle
-    // tras /auth/callback que redirige a /admin).
+    // Sesión válida pero sin privilegio admin → al editor (acceso libre),
+    // no a /login (ya está logueado) ni a /acceso-denegado (no es un tema
+    // de suscripción, simplemente no es admin).
     redirect('/app');
   }
 
