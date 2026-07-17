@@ -1,69 +1,45 @@
 import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
-import { LEMON_SQUEEZY_MOR_NOTICE, OPERATOR_NAME, PRODUCT_NAME, PRODUCT_TITLE, SUPPORT_EMAIL } from '@/utils/brand';
+import { PRODUCT_NAME, PRODUCT_TITLE } from '@/utils/brand';
 
 export const metadata: Metadata = {
-  title: `Refund — ${PRODUCT_TITLE}`,
-  description: `Refund Policy for ${PRODUCT_NAME} by ${OPERATOR_NAME}.`,
+  title: `Política de Reembolso — ${PRODUCT_TITLE}`,
+  description: `Política de Reembolsos y Cancelaciones de ${PRODUCT_NAME}.`,
 };
 
-const LAST_UPDATED = '17 de julio de 2026';
+const LAST_UPDATED = '17 de Julio de 2026';
 
 export default function RefundPage() {
   return (
-    <LegalPageLayout title="Refund Policy" lastUpdated={LAST_UPDATED}>
-      <p>
-        This Refund Policy explains when you may request a refund for the <strong>{PRODUCT_NAME} Pro</strong>{' '}
-        plan.
-      </p>
-
-      <LegalSection title="1. Merchant of Record">
-        <p>{LEMON_SQUEEZY_MOR_NOTICE}</p>
+    <LegalPageLayout title="Política de Reembolsos y Cancelaciones" lastUpdated={LAST_UPDATED}>
+      <LegalSection title="1. Ventas Finales">
         <p>
-          Refund requests may be handled by our support team and/or Lemon Squeezy customer channels, as
-          applicable.
+          Al tratarse de un software de acceso inmediato (SaaS), todas las ventas son finales. No se
+          emitirán reembolsos una vez que el pago ha sido procesado y el acceso ha sido otorgado.
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Refund window">
+      <LegalSection title="2. Cancelación">
         <p>
-          We offer a <strong>full refund</strong> if you request it within <strong>14 days</strong> of the Pro
-          purchase date. After that window, payments are non-refundable except where required by applicable
-          law or by Lemon Squeezy as Merchant of Record.
+          Usted puede cancelar la renovación automática en cualquier momento desde su panel de control.
+          Mantendrá el acceso hasta la finalización del periodo ya pagado.
         </p>
       </LegalSection>
 
-      <LegalSection title="3. How to request a refund">
+      <LegalSection title="3. Disputas de Pago">
         <p>
-          Email{' '}
-          <a className="font-medium underline" href={`mailto:${SUPPORT_EMAIL}`}>
-            {SUPPORT_EMAIL}
-          </a>{' '}
-          with:
-        </p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>The email used for the purchase</li>
-          <li>Approximate purchase date</li>
-          <li>Lemon Squeezy order / receipt number (if available)</li>
-          <li>A brief reason for the request</li>
-        </ul>
-      </LegalSection>
-
-      <LegalSection title="4. After a refund">
-        <p>
-          Once refunded, Pro cloud features may be revoked. The free plan (create and download PDF) remains
-          available.
+          Cualquier intento de contracargo (chargeback) injustificado resultará en la suspensión inmediata y
+          permanente de su cuenta.
         </p>
       </LegalSection>
 
-      <LegalSection title="5. Contact">
+      <LegalSection title="4. Usuarios &quot;Lifetime&quot;">
         <p>
-          Questions:{' '}
-          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
-            {SUPPORT_EMAIL}
-          </a>
-          .
+          El acceso de por vida está condicionado a la existencia operativa del Servicio. Si el servicio se
+          interrumpe permanentemente, los usuarios de licencias &quot;Lifetime&quot; no tienen derecho a
+          compensaciones monetarias adicionales una vez vencido el periodo de aviso previo definido en los
+          Términos de Servicio.
         </p>
       </LegalSection>
     </LegalPageLayout>

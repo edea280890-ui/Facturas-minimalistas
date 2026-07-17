@@ -1,78 +1,66 @@
 import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
-import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
 import {
   LEMON_SQUEEZY_MOR_NOTICE,
-  OPERATOR_NAME,
+  LEMON_SQUEEZY_OPERATOR_PAYMENTS,
   PRODUCT_NAME,
   PRODUCT_TITLE,
   SUPPORT_EMAIL,
 } from '@/utils/brand';
 
 export const metadata: Metadata = {
-  title: `Terms — ${PRODUCT_TITLE}`,
-  description: `Terms of Service for ${PRODUCT_NAME} by ${OPERATOR_NAME}.`,
+  title: `Términos y Condiciones — ${PRODUCT_TITLE}`,
+  description: `Términos y Condiciones de Servicio de ${PRODUCT_NAME}.`,
 };
 
-const LAST_UPDATED = '17 de julio de 2026';
+const LAST_UPDATED = '17 de Julio de 2026';
 
 export default function TermsPage() {
   return (
-    <LegalPageLayout title="Terms of Service" lastUpdated={LAST_UPDATED}>
+    <LegalPageLayout title="Términos y Condiciones de Servicio" lastUpdated={LAST_UPDATED}>
       <aside
         className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-slate-800"
-        aria-label="Merchant of Record notice"
+        aria-label="Aviso Merchant of Record"
       >
         <h2 className="mb-2 text-base font-semibold text-slate-900">Merchant of Record</h2>
         <p className="font-medium leading-relaxed">{LEMON_SQUEEZY_MOR_NOTICE}</p>
       </aside>
 
       <p>
-        These Terms of Service (&quot;Terms&quot;) govern access to and use of{' '}
-        <strong>{PRODUCT_NAME}</strong> (the &quot;Service&quot;), a Commercial Invoice Generator operated by{' '}
-        {OPERATOR_NAME}. By accessing or using the Service you agree to these Terms. If you do not agree,
-        do not use the Service.
+        Bienvenido a FacturaExterior. Al acceder y utilizar nuestro generador de facturas, usted acepta los
+        siguientes términos:
       </p>
 
-      <LegalSection title="1. Service Description">
-        <p>
-          {PRODUCT_NAME} helps B2B service exporters create, preview and download Commercial Invoices as PDF.
-          The Service offers two access levels:
-        </p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>
-            <strong>Free plan:</strong> unlimited invoice creation, live preview and PDF download, without
-            requiring an account.
-          </li>
-          <li>
-            <strong>Pro plan ({PRO_PRICE_USD_LABEL} USD, one-time):</strong> cloud storage, invoice dashboard,
-            sequential numbering and custom logo upload. Pro is a one-time payment for lifetime access to
-            these features, with no recurring charges.
-          </li>
-        </ul>
+      <LegalSection title="1. Operador y Pagos">
+        <p>{LEMON_SQUEEZY_OPERATOR_PAYMENTS}</p>
       </LegalSection>
 
-      <LegalSection title="2. User Accounts">
+      <LegalSection title="2. Uso del Servicio">
         <p>
-          Pro features require an account created via a magic link sent to your email (no password). You are
-          responsible for access to that email and for activity under your account.
+          FacturaExterior es una herramienta para la creación de documentos comerciales. Usted es el único
+          responsable de la exactitud de los datos ingresados y de asegurar el cumplimiento de las
+          normativas fiscales de su jurisdicción. Sirapp Studio no brinda asesoramiento legal ni fiscal.
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Payments, Billing & Taxes">
-        <p>{LEMON_SQUEEZY_MOR_NOTICE}</p>
+      <LegalSection title="3. Propiedad Intelectual">
         <p>
-          We do not store your card details. Payments are processed securely by Lemon Squeezy under their
-          terms and security standards (including PCI-DSS). After a successful payment, Pro access is linked
-          to the email used for the purchase.
+          Todo el código, diseño y arquitectura de FacturaExterior son propiedad exclusiva de Sirapp Studio.
+          Se otorga una licencia limitada y no transferible para su uso.
         </p>
+      </LegalSection>
+
+      <LegalSection title="4. Limitación de Responsabilidad">
         <p>
-          For refunds, see our{' '}
-          <a className="underline" href="/refund">
-            Refund Policy
-          </a>{' '}
-          or email{' '}
+          El Servicio se proporciona &quot;tal cual&quot;. Sirapp Studio no será responsable por daños
+          indirectos o pérdida de datos derivados del uso de la plataforma.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="5. Contacto">
+        <p>
+          Para soporte técnico o consultas, contáctenos en:{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
@@ -80,66 +68,13 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Acceptable Use">
-        <p>You agree not to:</p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>Use the Service for illegal, fraudulent or infringing activities.</li>
-          <li>Attempt to breach, overload or compromise the Service.</li>
-          <li>Resell or sublicense the Service without written permission.</li>
-          <li>Upload content that violates third-party intellectual property rights.</li>
-        </ul>
-      </LegalSection>
-
-      <LegalSection title="5. Ownership & User Content">
+      <LegalSection title="6. Terminación o Modificación">
         <p>
-          You retain all rights to the data you enter into invoices. We process that content only to provide
-          the Service, as described in our{' '}
-          <a className="underline" href="/privacy">
-            Privacy Policy
-          </a>
-          . The {PRODUCT_NAME} software, brand and UI are owned by {OPERATOR_NAME}.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="6. Availability">
-        <p>
-          We aim for continuous availability but do not guarantee uninterrupted or error-free operation.
-          Maintenance, updates or third-party outages may temporarily affect the Service.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="7. Limitation of Liability">
-        <p>
-          The Service is provided &quot;as is&quot; and &quot;as available&quot;. To the maximum extent
-          permitted by law, we are not liable for indirect, incidental, special or consequential damages
-          arising from use of the Service.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="8. Termination">
-        <p>
-          You may stop using the Service and request account deletion at any time by emailing{' '}
-          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
-            {SUPPORT_EMAIL}
-          </a>
-          . We may suspend accounts that violate these Terms.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="9. Changes">
-        <p>
-          We may update these Terms from time to time. Changes will be posted on this page with an updated
-          &quot;Last updated&quot; date. Continued use constitutes acceptance of the revised Terms.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="10. Contact">
-        <p>
-          Questions about these Terms:{' '}
-          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
-            {SUPPORT_EMAIL}
-          </a>
-          .
+          Sirapp Studio se reserva el derecho de modificar o interrumpir el Servicio en cualquier momento. En
+          caso de suscripciones de acceso ilimitado (&quot;Lifetime&quot;), Sirapp Studio se compromete a
+          notificar a los usuarios con al menos 30 días de antelación antes de una interrupción definitiva del
+          servicio, sin que esto constituya una obligación de reembolso retroactivo, salvo lo estipulado en
+          nuestra Política de Reembolso.
         </p>
       </LegalSection>
     </LegalPageLayout>

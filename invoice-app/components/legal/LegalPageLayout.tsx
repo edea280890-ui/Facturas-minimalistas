@@ -21,14 +21,14 @@ export default function LegalPageLayout({ title, lastUpdated, children }: LegalP
 
         <article className="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-10">
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">{title}</h1>
-          <p className="mt-1 text-sm text-slate-500">Last updated: {lastUpdated}</p>
+          <p className="mt-1 text-sm text-slate-500">Última actualización: {lastUpdated}</p>
 
           <div className="prose-legal mt-8 space-y-6 text-sm leading-6 text-slate-700 md:text-base">
             {children}
           </div>
 
           <nav
-            aria-label="Legal documents"
+            aria-label="Documentos legales"
             className="mt-10 flex flex-wrap gap-4 border-t border-slate-100 pt-6 text-sm"
           >
             <Link href="/terms" className="font-medium text-slate-600 hover:text-slate-900">
@@ -41,7 +41,7 @@ export default function LegalPageLayout({ title, lastUpdated, children }: LegalP
               Refund
             </Link>
             <a href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-slate-600 hover:text-slate-900">
-              Support
+              {SUPPORT_EMAIL}
             </a>
           </nav>
         </article>
