@@ -53,7 +53,7 @@ export function CurrencyTaxSection({
       </div>
 
       <DeferredNumberInput
-        label="Tax rate (%)"
+        label="Tax / Retention / Discount (%)"
         value={taxRate}
         onDraftChange={onTaxRateDraft}
         onCommit={onTaxRateCommit}

@@ -42,6 +42,8 @@ let draftCompanyEmail: string | undefined;
 let draftClientEmail: string | undefined;
 /** Borrador del porcentaje de impuesto mientras el usuario escribe. */
 let draftTaxRate: number | undefined;
+/** Borrador de paymentDetails; mutación sin set() para no re-renderizar el PDF. */
+let draftPaymentDetails: Partial<PaymentDetails> | undefined;
 
 interface InvoiceState {
   invoice: Invoice;
@@ -57,6 +59,7 @@ interface InvoiceState {
   setDraftCompanyEmail: (email: string) => void;
   setDraftClientEmail: (email: string) => void;
   setDraftTaxRate: (rate: number) => void;
+  setDraftPaymentField: (field: keyof PaymentDetails, value: string) => void;
   flushDraftFields: () => void;
   setCurrency: (currency: CurrencyCode) => void;
   updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items' | 'paymentDetails'>>) => void;
@@ -157,14 +160,22 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     }));
   },
 
-  updatePaymentDetails: (details) =>
+  updatePaymentDetails: (details) => {
+    if (draftPaymentDetails) {
+      const nextDraft = { ...draftPaymentDetails };
+      for (const key of Object.keys(details) as Array<keyof PaymentDetails>) {
+        delete nextDraft[key];
+      }
+      draftPaymentDetails = Object.keys(nextDraft).length > 0 ? nextDraft : undefined;
+    }
     set((state) => ({
       invoice: {
         ...state.invoice,
         paymentDetails: { ...state.invoice.paymentDetails, ...details },
       },
       validationErrors: {},
-    })),
+    }));
+  },
 
   setDraftCompanyEmail: (email) => {
     draftCompanyEmail = email;
@@ -178,11 +189,16 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     draftTaxRate = rate;
   },
 
+  setDraftPaymentField: (field, value) => {
+    draftPaymentDetails = { ...draftPaymentDetails, [field]: value };
+  },
+
   flushDraftFields: () => {
     const state = get();
     let company = state.invoice.company;
     let client = state.invoice.client;
     let taxRate = state.invoice.taxRate;
+    let paymentDetails = state.invoice.paymentDetails;
     let shouldUpdate = false;
 
     if (draftCompanyEmail !== undefined) {
@@ -212,9 +228,16 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       }
     }
 
+    if (draftPaymentDetails !== undefined) {
+      const committedPayment = draftPaymentDetails;
+      draftPaymentDetails = undefined;
+      paymentDetails = { ...paymentDetails, ...committedPayment };
+      shouldUpdate = true;
+    }
+
     if (shouldUpdate) {
       set({
-        invoice: { ...state.invoice, company, client, taxRate },
+        invoice: { ...state.invoice, company, client, taxRate, paymentDetails },
         validationErrors: {},
       });
     }
@@ -274,6 +297,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     draftCompanyEmail = undefined;
     draftClientEmail = undefined;
     draftTaxRate = undefined;
+    draftPaymentDetails = undefined;
     set({ invoice: buildInitialInvoice(), currentInvoiceId: null, validationErrors: {} });
   },
 
@@ -397,6 +421,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       draftCompanyEmail = undefined;
       draftClientEmail = undefined;
       draftTaxRate = undefined;
+      draftPaymentDetails = undefined;
       set({ invoice: invoiceFields, currentInvoiceId: stored.id, validationErrors: {} });
       return { error: null, id: stored.id };
     } catch (err) {

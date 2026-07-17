@@ -7,14 +7,17 @@ import { useToastStore } from '@/store/useToastStore';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { uploadCompanyLogo } from '@/utils/supabase/storage';
 import { DeferredEmailInput } from './DeferredEmailInput';
+import { DeferredInput } from './DeferredInput';
 import { CurrencyTaxSection } from './CurrencyTaxSection';
+import { PaymentDetailsForm } from './PaymentDetailsForm';
+import type { PaymentDetails } from '@/types/invoice';
 
 export default function InvoiceForm() {
   const {
     invoice, updateCompany, updateClient, updateInvoiceDetails, updatePaymentDetails,
     addItem, removeItem, updateItem, getSubtotal, getTotal,
     validationErrors, generateNextInvoiceNumber, setDraftCompanyEmail, setDraftClientEmail,
-    setCurrency, setDraftTaxRate, getTaxAmount,
+    setCurrency, setDraftTaxRate, setDraftPaymentField, getTaxAmount,
   } = useInvoiceStore();
   const session = useAuthStore((s) => s.session);
   const showToast = useToastStore((s) => s.showToast);
@@ -154,10 +157,15 @@ export default function InvoiceForm() {
               />
               {validationErrors.company?.address && <p className={errorTextClass}>{validationErrors.company.address}</p>}
             </div>
-            <div>
-              <label className={labelClass}>Tax ID</label>
-              <input type="text" value={invoice.company.taxId} onChange={(e) => updateCompany({ taxId: e.target.value })} className={inputClass} placeholder="VAT / EIN / Tax ID" />
-            </div>
+            <DeferredInput
+              label="Tax ID / VAT Number"
+              value={invoice.company.taxId}
+              onCommit={(taxId) => updateCompany({ taxId })}
+              inputClass={inputClass}
+              labelClass={labelClass}
+              placeholder="Tax ID / VAT Number"
+              autoComplete="off"
+            />
             <div>
               <label className={labelClass}>Logo (opcional)</label>
               <div className="flex items-center gap-3">
@@ -218,16 +226,15 @@ export default function InvoiceForm() {
               />
               {validationErrors.client?.address && <p className={errorTextClass}>{validationErrors.client.address}</p>}
             </div>
-            <div>
-              <label className={labelClass}>Tax ID</label>
-              <input
-                type="text"
-                value={invoice.client.taxId}
-                onChange={(e) => updateClient({ taxId: e.target.value })}
-                className={inputClass}
-                placeholder="VAT / Tax ID"
-              />
-            </div>
+            <DeferredInput
+              label="Tax ID / VAT Number"
+              value={invoice.client.taxId}
+              onCommit={(taxId) => updateClient({ taxId })}
+              inputClass={inputClass}
+              labelClass={labelClass}
+              placeholder="Tax ID / VAT Number"
+              autoComplete="off"
+            />
           </div>
         </section>
       </div>
@@ -284,66 +291,16 @@ export default function InvoiceForm() {
         </div>
       </section>
 
-      <section className={cardClass}>
-        <h3 className="text-sm font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-100">Payment details</h3>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className={labelClass}>Bank name</label>
-            <input
-              type="text"
-              value={invoice.paymentDetails.bankName ?? ''}
-              onChange={(e) => updatePaymentDetails({ bankName: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Account name</label>
-            <input
-              type="text"
-              value={invoice.paymentDetails.accountName ?? ''}
-              onChange={(e) => updatePaymentDetails({ accountName: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Account number</label>
-            <input
-              type="text"
-              value={invoice.paymentDetails.accountNumber ?? ''}
-              onChange={(e) => updatePaymentDetails({ accountNumber: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>SWIFT / BIC</label>
-            <input
-              type="text"
-              value={invoice.paymentDetails.swiftCode ?? ''}
-              onChange={(e) => updatePaymentDetails({ swiftCode: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Routing number</label>
-            <input
-              type="text"
-              value={invoice.paymentDetails.routingNumber ?? ''}
-              onChange={(e) => updatePaymentDetails({ routingNumber: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Alternative payment</label>
-            <input
-              type="text"
-              value={invoice.paymentDetails.alternativePayment ?? ''}
-              onChange={(e) => updatePaymentDetails({ alternativePayment: e.target.value })}
-              className={inputClass}
-              placeholder="Wise / Payoneer / etc."
-            />
-          </div>
-        </div>
-      </section>
+      <PaymentDetailsForm
+        paymentDetails={invoice.paymentDetails}
+        onDraftField={setDraftPaymentField}
+        onCommitField={(field: keyof PaymentDetails, value: string) =>
+          updatePaymentDetails({ [field]: value })
+        }
+        inputClass={inputClass}
+        labelClass={labelClass}
+        cardClass={cardClass}
+      />
 
       <section className="flex flex-col sm:flex-row justify-between gap-6">
         <div className="w-full sm:w-1/2">
@@ -364,7 +321,7 @@ export default function InvoiceForm() {
           </div>
           {showTaxBreakdown && (
             <div className="flex justify-between text-slate-300 mb-4">
-              <span>Impuestos ({invoice.taxRate}%)</span>
+              <span>Tax / Retention ({invoice.taxRate}%)</span>
               <span>{formatCurrency(taxAmount, invoice.currency)}</span>
             </div>
           )}
