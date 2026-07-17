@@ -16,14 +16,16 @@ export default function RefundPage() {
       <LegalSection title="1. Ventas Finales">
         <p>
           Al tratarse de un software de acceso inmediato (SaaS), todas las ventas son finales. No se
-          emitirán reembolsos una vez que el pago ha sido procesado y el acceso ha sido otorgado.
+          emitirán reembolsos totales ni parciales una vez que el pago ha sido procesado y el acceso ha sido
+          otorgado.
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Cancelación">
+      <LegalSection title="2. Cancelación de Suscripción">
         <p>
           Usted puede cancelar la renovación automática en cualquier momento desde su panel de control.
-          Mantendrá el acceso hasta la finalización del periodo ya pagado.
+          Mantendrá el acceso completo a las funciones adquiridas hasta la finalización del periodo de
+          facturación actual.
         </p>
       </LegalSection>
 
@@ -34,12 +36,12 @@ export default function RefundPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Usuarios &quot;Lifetime&quot;">
+      <LegalSection title="4. Usuarios de Acceso Ilimitado (&quot;Lifetime&quot;)">
         <p>
-          El acceso de por vida está condicionado a la existencia operativa del Servicio. Si el servicio se
-          interrumpe permanentemente, los usuarios de licencias &quot;Lifetime&quot; no tienen derecho a
-          compensaciones monetarias adicionales una vez vencido el periodo de aviso previo definido en los
-          Términos de Servicio.
+          El acceso de por vida está estrictamente condicionado a la existencia y continuidad operativa del
+          Servicio. Si el servicio se interrumpe o cierra permanentemente, los usuarios de licencias
+          &quot;Lifetime&quot; no tendrán derecho a compensaciones monetarias ni reembolsos una vez vencido el
+          periodo de aviso previo de 30 días definido en los Términos de Servicio.
         </p>
       </LegalSection>
     </LegalPageLayout>

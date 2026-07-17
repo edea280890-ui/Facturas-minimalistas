@@ -16,28 +16,31 @@ export default function PrivacyPage() {
       <LegalSection title="1. Recopilación de Datos">
         <p>
           Recopilamos únicamente la información mínima necesaria para el funcionamiento del Servicio (datos
-          de cuenta y datos de uso técnico). La información ingresada para generar facturas se procesa en su
-          navegador y no se almacena en nuestros servidores de forma persistente.
+          de cuenta y datos de uso técnico para optimización). La información que usted ingresa para generar
+          facturas se procesa localmente en su navegador y no se almacena en nuestros servidores de forma
+          persistente.
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Seguridad Financiera">
+      <LegalSection title="2. Seguridad Financiera y Pagos">
         <p>
-          Sirapp Studio no almacena números de tarjetas de crédito. Toda la información financiera es
-          procesada externamente por Lemon Squeezy, operando bajo estándares PCI-DSS.
+          Sirapp Studio no recopila ni almacena números de tarjetas de crédito. Toda la información
+          financiera es cifrada y procesada externamente por Lemon Squeezy, operando bajo estrictos
+          estándares PCI-DSS.
         </p>
       </LegalSection>
 
       <LegalSection title="3. Uso de la Información">
         <p>
-          No vendemos ni compartimos sus datos con terceros. Su correo electrónico es utilizado
-          exclusivamente para comunicaciones del sistema y soporte técnico.
+          No vendemos, alquilamos ni compartimos sus datos con terceros bajo ninguna circunstancia. Su
+          correo electrónico es utilizado exclusivamente para comunicaciones del sistema y soporte técnico.
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Contacto">
+      <LegalSection title="4. Contacto y Derechos">
         <p>
-          Para ejercer sus derechos sobre sus datos o realizar consultas, contáctenos en:{' '}
+          Para ejercer sus derechos sobre sus datos, solicitar la eliminación de su cuenta o realizar
+          consultas de privacidad, contáctenos en:{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
