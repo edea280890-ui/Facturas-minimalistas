@@ -8,8 +8,7 @@ interface LegalPageLayoutProps {
 }
 
 /**
- * Layout compartido por las páginas legales públicas (/terms, /privacy).
- * Mantiene la misma cabecera, tipografía y navegación de vuelta en ambas.
+ * Layout compartido por las páginas legales públicas (/terms, /privacy, /refund).
  */
 export default function LegalPageLayout({ title, lastUpdated, children }: LegalPageLayoutProps) {
   return (
@@ -19,7 +18,7 @@ export default function LegalPageLayout({ title, lastUpdated, children }: LegalP
           ← Volver al inicio
         </Link>
 
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-10">
+        <article className="mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-10">
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">{title}</h1>
           <p className="mt-1 text-sm text-slate-500">Última actualización: {lastUpdated}</p>
 
@@ -27,15 +26,27 @@ export default function LegalPageLayout({ title, lastUpdated, children }: LegalP
             {children}
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-4 border-t border-slate-100 pt-6 text-sm">
+          <nav
+            aria-label="Documentos legales"
+            className="mt-10 flex flex-wrap gap-4 border-t border-slate-100 pt-6 text-sm"
+          >
             <Link href="/terms" className="font-medium text-slate-600 hover:text-slate-900">
               Términos y Condiciones
             </Link>
             <Link href="/privacy" className="font-medium text-slate-600 hover:text-slate-900">
               Política de Privacidad
             </Link>
-          </div>
-        </div>
+            <Link href="/refund" className="font-medium text-slate-600 hover:text-slate-900">
+              Política de Reembolso
+            </Link>
+            <a
+              href="mailto:soporte@sirappstudio.com"
+              className="font-medium text-slate-600 hover:text-slate-900"
+            >
+              Soporte
+            </a>
+          </nav>
+        </article>
       </div>
     </main>
   );

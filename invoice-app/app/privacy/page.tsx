@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description: 'Política de Privacidad del servicio Generador de Facturas.',
 };
 
-const LAST_UPDATED = '16 de julio de 2026';
-const CONTACT_EMAIL = 'edea280890@gmail.com';
+const LAST_UPDATED = '17 de julio de 2026';
+const SUPPORT_EMAIL = 'soporte@sirappstudio.com';
 
 export default function PrivacyPage() {
   return (
@@ -31,10 +31,10 @@ export default function PrivacyPage() {
             clientes, conceptos, importes y divisa), así como el logo que decidas subir de forma opcional.
           </li>
           <li>
-            <strong>Datos de pago:</strong> cuando adquieres el Plan Pro, el procesamiento del pago lo
-            realiza directamente nuestro proveedor de pagos externo. No almacenamos números de tarjeta ni
-            datos financieros completos en nuestros propios servidores; solo recibimos una confirmación del
-            pago y un identificador de cliente de dicho proveedor.
+            <strong>Datos de pago:</strong> cuando adquieres el Plan Pro, el procesamiento del pago, la
+            facturación y la recaudación de impuestos los realiza Lemon Squeezy como Merchant of Record. No
+            almacenamos números de tarjeta ni datos financieros completos en nuestros propios servidores;
+            solo recibimos una confirmación del pago y la información necesaria para habilitar tu acceso.
           </li>
           <li>
             <strong>Datos técnicos básicos:</strong> información estándar de uso y de servidor (por ejemplo,
@@ -48,7 +48,7 @@ export default function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>Para prestarte el Servicio: crear, guardar, listar, editar y eliminar tus facturas.</li>
           <li>Para autenticarte y proteger el acceso a tu cuenta.</li>
-          <li>Para procesar tu pago y habilitar las funciones del Plan Pro.</li>
+          <li>Para procesar tu pago (a través de Lemon Squeezy) y habilitar las funciones del Plan Pro.</li>
           <li>Para comunicarnos contigo sobre cambios relevantes al Servicio o a estos documentos legales.</li>
           <li>Para diagnosticar y corregir errores técnicos.</li>
         </ul>
@@ -62,8 +62,8 @@ export default function PrivacyPage() {
             <strong>Supabase:</strong> autenticación, base de datos y almacenamiento de archivos (logos).
           </li>
           <li>
-            <strong>Hotmart</strong> (y, cuando aplique, <strong>Stripe</strong>): procesamiento del cobro
-            del Plan Pro de forma segura, bajo sus propios estándares de cumplimiento (incluyendo PCI-DSS).
+            <strong>Lemon Squeezy:</strong> Merchant of Record responsable del procesamiento de pagos, la
+            facturación y la recaudación de impuestos de las transacciones generadas en este sitio web.
           </li>
           <li>
             <strong>Vercel</strong> (u otro proveedor de hosting): alojamiento de la aplicación web.
@@ -88,9 +88,12 @@ export default function PrivacyPage() {
         <p>
           Conservamos tus datos mientras tu cuenta esté activa. Puedes solicitar la eliminación completa de
           tu cuenta y de todas tus facturas guardadas en cualquier momento escribiendo a{' '}
-          <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Procesaremos la
-          solicitud en un plazo razonable, salvo que estemos obligados a conservar cierta información por
-          motivos legales o contables (por ejemplo, registros de pagos).
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          . Procesaremos la solicitud en un plazo razonable, salvo que estemos obligados a conservar cierta
+          información por motivos legales o contables (por ejemplo, registros de pagos gestionados por Lemon
+          Squeezy).
         </p>
       </LegalSection>
 
@@ -107,7 +110,11 @@ export default function PrivacyPage() {
         <p>
           Dependiendo de tu ubicación, puedes tener derecho a acceder, corregir, exportar o eliminar tus
           datos personales, así como a oponerte a determinados usos de estos. Puedes ejercer estos derechos
-          escribiéndonos a <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          escribiéndonos a{' '}
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
 
@@ -128,7 +135,10 @@ export default function PrivacyPage() {
       <LegalSection title="10. Contacto">
         <p>
           Para cualquier consulta relacionada con la privacidad de tus datos, escríbenos a{' '}
-          <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
     </LegalPageLayout>
