@@ -13,7 +13,7 @@ export default function InvoiceForm() {
   const {
     invoice, updateCompany, updateClient, updateInvoiceDetails,
     addItem, removeItem, updateItem, getSubtotal, getTotal,
-    validationErrors, generateNextInvoiceNumber, setDraftClientEmail,
+    validationErrors, generateNextInvoiceNumber, setDraftCompanyEmail, setDraftClientEmail,
     setCurrency, setTaxEnabled, setDraftTaxRate, getTaxAmount,
   } = useInvoiceStore();
   const session = useAuthStore((s) => s.session);
@@ -133,16 +133,17 @@ export default function InvoiceForm() {
               />
               {validationErrors.company?.name && <p className={errorTextClass}>{validationErrors.company.name}</p>}
             </div>
-            <div>
-              <label className={labelClass}>Correo</label>
-              <input
-                type="email"
-                value={invoice.company.email}
-                onChange={(e) => updateCompany({ email: e.target.value })}
-                className={`${inputClass} ${validationErrors.company?.email ? errorInputClass : ''}`}
-              />
-              {validationErrors.company?.email && <p className={errorTextClass}>{validationErrors.company.email}</p>}
-            </div>
+            <DeferredEmailInput
+              label="Correo"
+              value={invoice.company.email}
+              onDraftChange={setDraftCompanyEmail}
+              onCommit={(email) => updateCompany({ email })}
+              error={validationErrors.company?.email}
+              inputClass={inputClass}
+              errorInputClass={errorInputClass}
+              labelClass={labelClass}
+              errorTextClass={errorTextClass}
+            />
             <div>
               <label className={labelClass}>Dirección</label>
               <input

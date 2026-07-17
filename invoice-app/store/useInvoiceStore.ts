@@ -28,6 +28,8 @@ const INVOICE_NUMBER_PATTERN = /^(.*?)(\d+)$/;
 const DEFAULT_INVOICE_PREFIX = 'FAC-';
 const DEFAULT_INVOICE_PADDING = 4;
 
+/** Borrador del email del emisor; mutación sin set() para no re-renderizar suscriptores. */
+let draftCompanyEmail: string | undefined;
 /** Borrador del email del cliente; mutación sin set() para no re-renderizar suscriptores. */
 let draftClientEmail: string | undefined;
 /** Borrador del porcentaje de impuesto mientras el usuario escribe. */
@@ -43,6 +45,7 @@ interface InvoiceState {
 
   updateCompany: (company: Partial<CompanyDetails>) => void;
   updateClient: (client: Partial<ClientDetails>) => void;
+  setDraftCompanyEmail: (email: string) => void;
   setDraftClientEmail: (email: string) => void;
   setDraftTaxRate: (rate: number) => void;
   flushDraftFields: () => void;
@@ -130,11 +133,19 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   listError: null,
   validationErrors: {},
 
-  updateCompany: (companyData) =>
+  updateCompany: (companyData) => {
+    if ('email' in companyData) {
+      draftCompanyEmail = undefined;
+    }
     set((state) => ({
       invoice: { ...state.invoice, company: { ...state.invoice.company, ...companyData } },
       validationErrors: {},
-    })),
+    }));
+  },
+
+  setDraftCompanyEmail: (email) => {
+    draftCompanyEmail = email;
+  },
 
   setDraftClientEmail: (email) => {
     draftClientEmail = email;
@@ -145,14 +156,27 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   },
 
   flushDraftFields: () => {
+    const state = get();
     const updates: Partial<Invoice> = {};
+    let company = state.invoice.company;
+    let client = state.invoice.client;
+    let taxRate = state.invoice.taxRate;
     let shouldUpdate = false;
+
+    if (draftCompanyEmail !== undefined) {
+      const committedEmail = draftCompanyEmail;
+      draftCompanyEmail = undefined;
+      if (committedEmail !== company.email) {
+        company = { ...company, email: committedEmail };
+        shouldUpdate = true;
+      }
+    }
 
     if (draftClientEmail !== undefined) {
       const committedEmail = draftClientEmail;
       draftClientEmail = undefined;
-      if (committedEmail !== get().invoice.client.email) {
-        updates.client = { ...get().invoice.client, email: committedEmail };
+      if (committedEmail !== client.email) {
+        client = { ...client, email: committedEmail };
         shouldUpdate = true;
       }
     }
@@ -160,17 +184,17 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     if (draftTaxRate !== undefined) {
       const committedRate = draftTaxRate;
       draftTaxRate = undefined;
-      if (committedRate !== get().invoice.taxRate) {
-        updates.taxRate = committedRate;
+      if (committedRate !== taxRate) {
+        taxRate = committedRate;
         shouldUpdate = true;
       }
     }
 
     if (shouldUpdate) {
-      set((state) => ({
-        invoice: { ...state.invoice, ...updates },
+      set({
+        invoice: { ...state.invoice, company, client, taxRate },
         validationErrors: {},
-      }));
+      });
     }
   },
 
@@ -258,6 +282,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   },
 
   newInvoice: () => {
+    draftCompanyEmail = undefined;
     draftClientEmail = undefined;
     draftTaxRate = undefined;
     set({ invoice: buildInitialInvoice(), currentInvoiceId: null, validationErrors: {} });
@@ -380,6 +405,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         taxRate: stored.taxRate,
       };
 
+      draftCompanyEmail = undefined;
       draftClientEmail = undefined;
       draftTaxRate = undefined;
       set({ invoice: invoiceFields, currentInvoiceId: stored.id, validationErrors: {} });
