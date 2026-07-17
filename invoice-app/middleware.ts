@@ -29,8 +29,9 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Excluye estáticos. Incluye /auth/callback explícitamente vía el patrón.
+     * Excluye estáticos y probes habituales del navegador (p. ej. /sw.js).
+     * Incluye /auth/callback explícitamente vía el patrón.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
