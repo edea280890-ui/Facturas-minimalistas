@@ -18,7 +18,20 @@ const styles = StyleSheet.create({
   logo: { width: 48, height: 48, marginBottom: 8, objectFit: 'contain' },
 });
 
-export const InvoiceDocument = ({ data, subtotal, total }: { data: Invoice, subtotal: number, total: number }) => (
+export const InvoiceDocument = ({
+  data,
+  subtotal,
+  taxAmount,
+  total,
+}: {
+  data: Invoice;
+  subtotal: number;
+  taxAmount: number;
+  total: number;
+}) => {
+  const showTax = data.taxEnabled && taxAmount > 0;
+
+  return (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
@@ -60,9 +73,15 @@ export const InvoiceDocument = ({ data, subtotal, total }: { data: Invoice, subt
       </View>
       <View style={styles.totals}>
         <View style={styles.totalRow}><Text>Subtotal:</Text><Text>{formatCurrency(subtotal, data.currency)}</Text></View>
-        <View style={styles.totalRow}><Text>IVA ({data.taxRate}%):</Text><Text>{formatCurrency(total - subtotal, data.currency)}</Text></View>
+        {showTax && (
+          <View style={styles.totalRow}>
+            <Text>Impuestos ({data.taxRate}%):</Text>
+            <Text>{formatCurrency(taxAmount, data.currency)}</Text>
+          </View>
+        )}
         <View style={[styles.totalRow, styles.finalTotal]}><Text>Total:</Text><Text>{formatCurrency(total, data.currency)}</Text></View>
       </View>
     </Page>
   </Document>
-);
+  );
+};

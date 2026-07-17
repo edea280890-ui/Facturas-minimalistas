@@ -5,15 +5,16 @@ import { useInvoiceStore } from '@/store/useInvoiceStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToastStore } from '@/store/useToastStore';
 import { formatCurrency } from '@/utils/formatCurrency';
-import { SUPPORTED_CURRENCIES } from '@/types/invoice';
 import { uploadCompanyLogo } from '@/utils/supabase/storage';
 import { DeferredEmailInput } from './DeferredEmailInput';
+import { CurrencyTaxSection } from './CurrencyTaxSection';
 
 export default function InvoiceForm() {
   const {
     invoice, updateCompany, updateClient, updateInvoiceDetails,
     addItem, removeItem, updateItem, getSubtotal, getTotal,
     validationErrors, generateNextInvoiceNumber, setDraftClientEmail,
+    setCurrency, setTaxEnabled, setDraftTaxRate, getTaxAmount,
   } = useInvoiceStore();
   const session = useAuthStore((s) => s.session);
   const showToast = useToastStore((s) => s.showToast);
@@ -66,6 +67,10 @@ export default function InvoiceForm() {
   const errorTextClass = "mt-1 text-xs text-red-600";
 
   const itemErrors = validationErrors.items ?? {};
+  const subtotal = getSubtotal();
+  const taxAmount = getTaxAmount();
+  const total = getTotal();
+  const showTaxBreakdown = invoice.taxEnabled && taxAmount > 0;
 
   return (
     <div className="space-y-6">
@@ -269,30 +274,34 @@ export default function InvoiceForm() {
       </section>
 
       <section className="flex flex-col sm:flex-row justify-between gap-6">
-        <div className="flex gap-4 w-full sm:w-1/2">
-          <div className="flex-1">
-            <label className={labelClass}>Divisa</label>
-            <select value={invoice.currency} onChange={(e) => updateInvoiceDetails({ currency: e.target.value })} className={inputClass}>
-              {SUPPORTED_CURRENCIES.map((code) => (
-                <option key={code} value={code}>{code}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className={labelClass}>Impuesto (%)</label>
-            <input
-              type="number"
-              min="0"
-              value={invoice.taxRate}
-              onChange={(e) => updateInvoiceDetails({ taxRate: parseFloat(e.target.value) || 0 })}
-              className={inputClass}
-            />
-          </div>
+        <div className="w-full sm:w-1/2">
+          <CurrencyTaxSection
+            currency={invoice.currency}
+            taxEnabled={invoice.taxEnabled}
+            taxRate={invoice.taxRate}
+            onCurrencyChange={setCurrency}
+            onTaxEnabledChange={setTaxEnabled}
+            onTaxRateDraft={setDraftTaxRate}
+            onTaxRateCommit={(rate) => updateInvoiceDetails({ taxRate: rate })}
+            inputClass={inputClass}
+            labelClass={labelClass}
+          />
         </div>
         <div className="w-full sm:w-80 bg-slate-900 text-white p-6 rounded-xl">
-          <div className="flex justify-between text-slate-300 mb-2"><span>Subtotal</span><span>{formatCurrency(getSubtotal(), invoice.currency)}</span></div>
-          <div className="flex justify-between text-slate-300 mb-4"><span>Impuestos</span><span>{formatCurrency(getTotal() - getSubtotal(), invoice.currency)}</span></div>
-          <div className="flex justify-between text-lg font-bold border-t border-slate-700 pt-4"><span>Total</span><span>{formatCurrency(getTotal(), invoice.currency)}</span></div>
+          <div className="flex justify-between text-slate-300 mb-2">
+            <span>Subtotal</span>
+            <span>{formatCurrency(subtotal, invoice.currency)}</span>
+          </div>
+          {showTaxBreakdown && (
+            <div className="flex justify-between text-slate-300 mb-4">
+              <span>Impuestos ({invoice.taxRate}%)</span>
+              <span>{formatCurrency(taxAmount, invoice.currency)}</span>
+            </div>
+          )}
+          <div className={`flex justify-between text-lg font-bold border-t border-slate-700 pt-4 ${showTaxBreakdown ? '' : 'mt-2'}`}>
+            <span>Total</span>
+            <span>{formatCurrency(total, invoice.currency)}</span>
+          </div>
         </div>
       </section>
     </div>

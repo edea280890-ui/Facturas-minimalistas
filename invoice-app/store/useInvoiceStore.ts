@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Invoice, LineItem, CompanyDetails, ClientDetails, StoredInvoice } from '@/types/invoice';
+import { Invoice, LineItem, CompanyDetails, ClientDetails, StoredInvoice, CurrencyCode } from '@/types/invoice';
 import { supabase } from '@/utils/supabase/client';
 import { InvoiceRow, invoiceToRowPayload, rowToStoredInvoice } from '@/utils/supabase/mappers';
 import {
@@ -8,6 +8,8 @@ import {
   flattenValidationErrors,
   InvoiceValidationErrors,
 } from '@/utils/validateInvoice';
+import { getDefaultTaxForCurrency } from '@/utils/currencyConfig';
+import { computeSubtotal, computeTaxAmount, computeTotal } from '@/utils/invoiceCalculations';
 
 interface SaveResult {
   error: string | null;
@@ -28,6 +30,8 @@ const DEFAULT_INVOICE_PADDING = 4;
 
 /** Borrador del email del cliente; mutación sin set() para no re-renderizar suscriptores. */
 let draftClientEmail: string | undefined;
+/** Borrador del porcentaje de impuesto mientras el usuario escribe. */
+let draftTaxRate: number | undefined;
 
 interface InvoiceState {
   invoice: Invoice;
@@ -40,12 +44,16 @@ interface InvoiceState {
   updateCompany: (company: Partial<CompanyDetails>) => void;
   updateClient: (client: Partial<ClientDetails>) => void;
   setDraftClientEmail: (email: string) => void;
+  setDraftTaxRate: (rate: number) => void;
   flushDraftFields: () => void;
+  setCurrency: (currency: CurrencyCode) => void;
+  setTaxEnabled: (enabled: boolean) => void;
   updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items'>>) => void;
   addItem: () => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, item: Partial<LineItem>) => void;
   getSubtotal: () => number;
+  getTaxAmount: () => number;
   getTotal: () => number;
 
   newInvoice: () => void;
@@ -60,16 +68,26 @@ interface InvoiceState {
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 function buildInitialInvoice(): Invoice {
+  const currency: CurrencyCode = 'USD';
+  const { taxEnabled, taxRate } = getDefaultTaxForCurrency(currency);
   return {
     invoiceNumber: '',
     date: new Date().toISOString().split('T')[0],
     dueDate: new Date().toISOString().split('T')[0],
-    currency: 'USD',
-    taxRate: 21,
+    currency,
+    taxEnabled,
+    taxRate,
     company: { name: '', email: '', address: '', taxId: '' },
     client: { name: '', email: '', address: '' },
     items: [{ id: generateId(), description: '', quantity: 1, price: 0 }],
   };
+}
+
+function effectiveTaxRate(invoice: Invoice): number {
+  if (draftTaxRate !== undefined && invoice.taxEnabled) {
+    return draftTaxRate;
+  }
+  return invoice.taxEnabled ? invoice.taxRate : 0;
 }
 
 function nextInvoiceNumberFrom(lastNumber: string | null): string {
@@ -122,16 +140,67 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     draftClientEmail = email;
   },
 
+  setDraftTaxRate: (rate) => {
+    draftTaxRate = rate;
+  },
+
   flushDraftFields: () => {
-    if (draftClientEmail === undefined) return;
-    const committedEmail = draftClientEmail;
-    draftClientEmail = undefined;
-    const currentEmail = get().invoice.client.email;
-    if (committedEmail === currentEmail) return;
+    const updates: Partial<Invoice> = {};
+    let shouldUpdate = false;
+
+    if (draftClientEmail !== undefined) {
+      const committedEmail = draftClientEmail;
+      draftClientEmail = undefined;
+      if (committedEmail !== get().invoice.client.email) {
+        updates.client = { ...get().invoice.client, email: committedEmail };
+        shouldUpdate = true;
+      }
+    }
+
+    if (draftTaxRate !== undefined) {
+      const committedRate = draftTaxRate;
+      draftTaxRate = undefined;
+      if (committedRate !== get().invoice.taxRate) {
+        updates.taxRate = committedRate;
+        shouldUpdate = true;
+      }
+    }
+
+    if (shouldUpdate) {
+      set((state) => ({
+        invoice: { ...state.invoice, ...updates },
+        validationErrors: {},
+      }));
+    }
+  },
+
+  setCurrency: (currency) => {
+    draftTaxRate = undefined;
+    const defaults = getDefaultTaxForCurrency(currency);
     set((state) => ({
-      invoice: { ...state.invoice, client: { ...state.invoice.client, email: committedEmail } },
+      invoice: {
+        ...state.invoice,
+        currency,
+        taxEnabled: defaults.taxEnabled,
+        taxRate: defaults.taxRate,
+      },
       validationErrors: {},
     }));
+  },
+
+  setTaxEnabled: (enabled) => {
+    draftTaxRate = undefined;
+    set((state) => {
+      const suggested = getDefaultTaxForCurrency(state.invoice.currency).taxRate;
+      return {
+        invoice: {
+          ...state.invoice,
+          taxEnabled: enabled,
+          taxRate: enabled ? (state.invoice.taxRate > 0 ? state.invoice.taxRate : suggested) : 0,
+        },
+        validationErrors: {},
+      };
+    });
   },
 
   updateClient: (clientData) => {
@@ -144,8 +213,12 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     }));
   },
 
-  updateInvoiceDetails: (details) =>
-    set((state) => ({ invoice: { ...state.invoice, ...details }, validationErrors: {} })),
+  updateInvoiceDetails: (details) => {
+    if ('taxRate' in details) {
+      draftTaxRate = undefined;
+    }
+    set((state) => ({ invoice: { ...state.invoice, ...details }, validationErrors: {} }));
+  },
 
   addItem: () =>
     set((state) => ({
@@ -171,19 +244,22 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       validationErrors: {},
     })),
 
-  getSubtotal: () => {
-    const items = get().invoice.items;
-    return items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  getSubtotal: () => computeSubtotal(get().invoice.items),
+
+  getTaxAmount: () => {
+    const invoice = get().invoice;
+    return computeTaxAmount(get().getSubtotal(), invoice.taxEnabled, effectiveTaxRate(invoice));
   },
 
   getTotal: () => {
+    const invoice = get().invoice;
     const subtotal = get().getSubtotal();
-    const taxRate = get().invoice.taxRate;
-    return subtotal + subtotal * (taxRate / 100);
+    return computeTotal(subtotal, invoice.taxEnabled, effectiveTaxRate(invoice));
   },
 
   newInvoice: () => {
     draftClientEmail = undefined;
+    draftTaxRate = undefined;
     set({ invoice: buildInitialInvoice(), currentInvoiceId: null, validationErrors: {} });
   },
 
@@ -300,10 +376,12 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         client: stored.client,
         items: stored.items,
         currency: stored.currency,
+        taxEnabled: stored.taxRate > 0,
         taxRate: stored.taxRate,
       };
 
       draftClientEmail = undefined;
+      draftTaxRate = undefined;
       set({ invoice: invoiceFields, currentInvoiceId: stored.id, validationErrors: {} });
       return { error: null, id: stored.id };
     } catch (err) {

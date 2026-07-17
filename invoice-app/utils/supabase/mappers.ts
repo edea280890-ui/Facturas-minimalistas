@@ -27,6 +27,7 @@ export function rowToStoredInvoice(row: InvoiceRow): StoredInvoice {
     client: row.client,
     items: row.items,
     currency: row.currency,
+    taxEnabled: row.tax_rate > 0,
     taxRate: row.tax_rate,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -43,6 +44,6 @@ export function invoiceToRowPayload(invoice: Invoice, userId: string) {
     client: invoice.client,
     items: invoice.items,
     currency: invoice.currency,
-    tax_rate: invoice.taxRate,
+    tax_rate: invoice.taxEnabled ? invoice.taxRate : 0,
   };
 }

@@ -28,6 +28,8 @@ export interface Invoice {
   client: ClientDetails;
   items: LineItem[];
   currency: string;
+  /** Si es false, taxRate se trata como 0 en los cálculos. */
+  taxEnabled: boolean;
   taxRate: number;
 }
 
