@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getHotmartCheckoutUrl } from '@/utils/hotmart/config';
+import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
 
 interface Plan {
   name: string;
@@ -46,7 +47,7 @@ export default function HotmartPricingSection() {
     },
     {
       name: 'Plan Pro',
-      price: '$15 USD',
+      price: `${PRO_PRICE_USD_LABEL} USD`,
       priceNote: 'Pago único — de por vida',
       description: 'Todo lo del Plan Gratuito, además de guardar tus facturas en la nube.',
       features: [

@@ -8,8 +8,9 @@ export const runtime = 'nodejs';
 /**
  * POST /api/checkout
  *
- * Crea una sesión de Stripe Checkout (pago único de $15 USD) para el usuario
- * autenticado que hace la petición, y devuelve la URL a la que redirigirlo.
+ * Crea una sesión de Stripe Checkout (pago único, ver `PRO_PRICE_USD_CENTS`
+ * en `utils/stripe/constants.ts`) para el usuario autenticado que hace la
+ * petición, y devuelve la URL a la que redirigirlo.
  *
  * El cliente debe enviar `Authorization: Bearer <access_token>` (el token de
  * la sesión actual de Supabase); este endpoint valida ese token contra
