@@ -26,6 +26,9 @@ const INVOICE_NUMBER_PATTERN = /^(.*?)(\d+)$/;
 const DEFAULT_INVOICE_PREFIX = 'FAC-';
 const DEFAULT_INVOICE_PADDING = 4;
 
+/** Borrador del email del cliente; mutación sin set() para no re-renderizar suscriptores. */
+let draftClientEmail: string | undefined;
+
 interface InvoiceState {
   invoice: Invoice;
   currentInvoiceId: string | null;
@@ -36,6 +39,8 @@ interface InvoiceState {
 
   updateCompany: (company: Partial<CompanyDetails>) => void;
   updateClient: (client: Partial<ClientDetails>) => void;
+  setDraftClientEmail: (email: string) => void;
+  flushDraftFields: () => void;
   updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items'>>) => void;
   addItem: () => void;
   removeItem: (id: string) => void;
@@ -113,11 +118,31 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       validationErrors: {},
     })),
 
-  updateClient: (clientData) =>
+  setDraftClientEmail: (email) => {
+    draftClientEmail = email;
+  },
+
+  flushDraftFields: () => {
+    if (draftClientEmail === undefined) return;
+    const committedEmail = draftClientEmail;
+    draftClientEmail = undefined;
+    const currentEmail = get().invoice.client.email;
+    if (committedEmail === currentEmail) return;
+    set((state) => ({
+      invoice: { ...state.invoice, client: { ...state.invoice.client, email: committedEmail } },
+      validationErrors: {},
+    }));
+  },
+
+  updateClient: (clientData) => {
+    if ('email' in clientData) {
+      draftClientEmail = undefined;
+    }
     set((state) => ({
       invoice: { ...state.invoice, client: { ...state.invoice.client, ...clientData } },
       validationErrors: {},
-    })),
+    }));
+  },
 
   updateInvoiceDetails: (details) =>
     set((state) => ({ invoice: { ...state.invoice, ...details }, validationErrors: {} })),
@@ -158,11 +183,13 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   },
 
   newInvoice: () => {
+    draftClientEmail = undefined;
     set({ invoice: buildInitialInvoice(), currentInvoiceId: null, validationErrors: {} });
   },
 
   saveInvoiceToCloud: async (): Promise<SaveResult> => {
     try {
+      get().flushDraftFields();
       const { invoice } = get();
       const validationErrors = validateInvoice(invoice);
       if (hasValidationErrors(validationErrors)) {
@@ -192,6 +219,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
 
   updateInvoiceInCloud: async (id: string): Promise<SaveResult> => {
     try {
+      get().flushDraftFields();
       const { invoice } = get();
       const validationErrors = validateInvoice(invoice);
       if (hasValidationErrors(validationErrors)) {
@@ -275,6 +303,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         taxRate: stored.taxRate,
       };
 
+      draftClientEmail = undefined;
       set({ invoice: invoiceFields, currentInvoiceId: stored.id, validationErrors: {} });
       return { error: null, id: stored.id };
     } catch (err) {

@@ -7,12 +7,13 @@ import { useToastStore } from '@/store/useToastStore';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { SUPPORTED_CURRENCIES } from '@/types/invoice';
 import { uploadCompanyLogo } from '@/utils/supabase/storage';
+import { DeferredEmailInput } from './DeferredEmailInput';
 
 export default function InvoiceForm() {
   const {
     invoice, updateCompany, updateClient, updateInvoiceDetails,
     addItem, removeItem, updateItem, getSubtotal, getTotal,
-    validationErrors, generateNextInvoiceNumber,
+    validationErrors, generateNextInvoiceNumber, setDraftClientEmail,
   } = useInvoiceStore();
   const session = useAuthStore((s) => s.session);
   const showToast = useToastStore((s) => s.showToast);
@@ -190,16 +191,17 @@ export default function InvoiceForm() {
               />
               {validationErrors.client?.name && <p className={errorTextClass}>{validationErrors.client.name}</p>}
             </div>
-            <div>
-              <label className={labelClass}>Correo Electrónico</label>
-              <input
-                type="email"
-                value={invoice.client.email}
-                onChange={(e) => updateClient({ email: e.target.value })}
-                className={`${inputClass} ${validationErrors.client?.email ? errorInputClass : ''}`}
-              />
-              {validationErrors.client?.email && <p className={errorTextClass}>{validationErrors.client.email}</p>}
-            </div>
+            <DeferredEmailInput
+              label="Correo Electrónico"
+              value={invoice.client.email}
+              onDraftChange={setDraftClientEmail}
+              onCommit={(email) => updateClient({ email })}
+              error={validationErrors.client?.email}
+              inputClass={inputClass}
+              errorInputClass={errorInputClass}
+              labelClass={labelClass}
+              errorTextClass={errorTextClass}
+            />
             <div>
               <label className={labelClass}>Dirección</label>
               <input
