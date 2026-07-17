@@ -1,130 +1,72 @@
 import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
-import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
+import {
+  LEMON_SQUEEZY_OPERATOR_PAYMENTS,
+  PRODUCT_NAME,
+  PRODUCT_TITLE,
+  SUPPORT_EMAIL,
+} from '@/utils/brand';
 
 export const metadata: Metadata = {
-  title: 'Términos y Condiciones — Generador de Facturas',
-  description: 'Términos y Condiciones de uso del servicio Generador de Facturas.',
+  title: `Términos y Condiciones — ${PRODUCT_TITLE}`,
+  description: `Términos y Condiciones de Servicio de ${PRODUCT_NAME}.`,
 };
 
-const LAST_UPDATED = '16 de julio de 2026';
-const CONTACT_EMAIL = 'edea280890@gmail.com';
+const LAST_UPDATED = '17 de Julio de 2026';
 
 export default function TermsPage() {
   return (
-    <LegalPageLayout title="Términos y Condiciones" lastUpdated={LAST_UPDATED}>
+    <LegalPageLayout title="Términos y Condiciones de Servicio" lastUpdated={LAST_UPDATED}>
       <p>
-        Estos Términos y Condiciones (&quot;Términos&quot;) regulan el acceso y uso del servicio
-        <strong> Generador de Facturas</strong> (el &quot;Servicio&quot;), operado como un producto de software
-        como servicio (SaaS). Al acceder o utilizar el Servicio aceptas quedar sujeto a estos Términos.
-        Si no estás de acuerdo con alguna parte de ellos, no debes utilizar el Servicio.
+        Bienvenido a FacturaExterior. Al acceder y utilizar nuestro generador de facturas, usted acepta los
+        siguientes términos:
       </p>
 
-      <LegalSection title="1. Descripción del Servicio">
-        <p>
-          Generador de Facturas es una herramienta que permite crear, previsualizar y exportar facturas en
-          formato PDF. El Servicio ofrece dos niveles de acceso:
-        </p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>
-            <strong>Plan Gratuito:</strong> creación ilimitada de facturas, previsualización en vivo y
-            descarga en PDF, sin necesidad de crear una cuenta.
-          </li>
-          <li>
-            <strong>Plan Pro ({PRO_PRICE_USD_LABEL} USD, pago único):</strong> incluye además guardado de
-            facturas en la nube, un panel de gestión (&quot;Mis facturas&quot;) para consultarlas, editarlas y
-            eliminarlas, numeración automática secuencial y carga de logo personalizado. El Plan Pro es un
-            pago único que otorga acceso de por vida a estas funciones, sin cobros recurrentes.
-          </li>
-        </ul>
+      <LegalSection title="1. Operador y Pagos">
+        <p className="font-medium leading-relaxed text-slate-800">{LEMON_SQUEEZY_OPERATOR_PAYMENTS}</p>
       </LegalSection>
 
-      <LegalSection title="2. Cuentas de Usuario">
+      <LegalSection title="2. Uso del Servicio">
         <p>
-          Para acceder a las funciones del Plan Pro es necesario crear una cuenta mediante un enlace de
-          acceso enviado a tu correo electrónico (&quot;Magic Link&quot;), sin necesidad de contraseña. Eres
-          responsable de mantener el acceso a tu correo electrónico y de toda la actividad que ocurra bajo tu
-          cuenta. Debes notificarnos de inmediato ante cualquier uso no autorizado de tu cuenta.
+          FacturaExterior es una herramienta para la creación de documentos comerciales. Usted es el único
+          responsable de la exactitud de los datos ingresados y de asegurar el cumplimiento de las
+          normativas fiscales de su jurisdicción. Sirapp Studio no brinda asesoramiento legal ni fiscal.
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Pagos, Facturación y Reembolsos">
+      <LegalSection title="3. Propiedad Intelectual">
         <p>
-          El Plan Pro se cobra como un pago único a través de un proveedor de pagos externo (Hotmart y, cuando
-          aplique, Stripe). No almacenamos los datos de tu tarjeta de pago; estos son procesados directamente
-          por dicho proveedor bajo sus propios términos y estándares de seguridad (PCI-DSS). Tras un pago
-          exitoso, el acceso Pro se asocia al correo electrónico usado en la compra.
-        </p>
-        <p>
-          Ofrecemos un reembolso completo si lo solicitas dentro de los <strong>14 días</strong> posteriores a
-          la compra, escribiendo a <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{' '}
-          indicando el correo con el que realizaste la compra. Pasado ese plazo, el pago no es reembolsable,
-          salvo que la ley aplicable disponga lo contrario.
+          Todo el código, diseño y arquitectura de FacturaExterior son propiedad exclusiva de Sirapp Studio.
+          Se otorga una licencia limitada y no transferible para su uso.
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Uso Aceptable">
-        <p>Al utilizar el Servicio te comprometes a no:</p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>Utilizar el Servicio para actividades ilegales, fraudulentas o que infrinjan derechos de terceros.</li>
-          <li>Intentar vulnerar, sobrecargar o comprometer la seguridad o disponibilidad del Servicio.</li>
-          <li>Revender, sublicenciar o redistribuir el Servicio sin autorización expresa.</li>
-          <li>Cargar contenido difamatorio, ofensivo o que infrinja derechos de propiedad intelectual de terceros.</li>
-        </ul>
-      </LegalSection>
-
-      <LegalSection title="5. Propiedad y Contenido del Usuario">
+      <LegalSection title="4. Limitación de Responsabilidad">
         <p>
-          Tú conservas todos los derechos sobre los datos que introduces en tus facturas (información de tu
-          empresa, tus clientes, conceptos y montos). Nosotros no reclamamos propiedad sobre dicho contenido;
-          únicamente lo almacenamos y procesamos para prestarte el Servicio, según se describe en nuestra{' '}
-          <a className="underline" href="/privacy">Política de Privacidad</a>.
-        </p>
-        <p>
-          El software, marca, diseño e interfaz del Generador de Facturas son propiedad exclusiva del
-          operador del Servicio y están protegidos por las leyes de propiedad intelectual aplicables.
+          El Servicio se proporciona &quot;tal cual&quot;. Sirapp Studio no será responsable por daños
+          indirectos o pérdida de datos derivados del uso de la plataforma.
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Disponibilidad del Servicio">
+      <LegalSection title="5. Contacto">
         <p>
-          Nos esforzamos por mantener el Servicio disponible de forma continua, pero no garantizamos que
-          funcione de manera ininterrumpida o libre de errores. Podemos suspender temporalmente el Servicio
-          por mantenimiento, actualizaciones o causas de fuerza mayor, incluyendo interrupciones de
-          proveedores externos de infraestructura (hosting, base de datos o procesamiento de pagos).
+          Para soporte técnico o consultas, contáctenos en:{' '}
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Limitación de Responsabilidad">
+      <LegalSection title="6. Terminación o Modificación del Servicio">
         <p>
-          El Servicio se proporciona &quot;tal cual&quot; y &quot;según disponibilidad&quot;, sin garantías de
-          ningún tipo, expresas o implícitas. En la máxima medida permitida por la ley aplicable, no seremos
-          responsables por daños indirectos, incidentales, especiales o consecuentes derivados del uso o la
-          imposibilidad de uso del Servicio, incluyendo pérdida de datos o de ingresos.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="8. Terminación">
-        <p>
-          Puedes dejar de usar el Servicio y solicitar la eliminación de tu cuenta y tus datos en cualquier
-          momento, escribiendo a <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-          Podemos suspender o cancelar el acceso de cualquier cuenta que incumpla estos Términos.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="9. Cambios a estos Términos">
-        <p>
-          Podemos actualizar estos Términos ocasionalmente. Publicaremos cualquier cambio en esta misma
-          página junto con la fecha de la &quot;Última actualización&quot;. El uso continuado del Servicio
-          después de un cambio implica la aceptación de los nuevos Términos.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="10. Contacto">
-        <p>
-          Si tienes preguntas sobre estos Términos, puedes escribirnos a{' '}
-          <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          Sirapp Studio se reserva el derecho de modificar, suspender o interrumpir el Servicio (o cualquier
+          parte del mismo) en cualquier momento, con o sin previo aviso. En el caso de suscripciones de
+          acceso ilimitado (&quot;Lifetime&quot;), Sirapp Studio se compromete a proporcionar un aviso previo
+          de al menos 30 días antes de una interrupción definitiva del servicio, sin que esto constituya una
+          obligación de reembolso retroactivo o compensación económica, salvo lo estipulado en nuestra
+          Política de Reembolso.
         </p>
       </LegalSection>
     </LegalPageLayout>

@@ -1,5 +1,14 @@
 import { create } from 'zustand';
-import { Invoice, LineItem, CompanyDetails, ClientDetails, StoredInvoice } from '@/types/invoice';
+import {
+  Invoice,
+  LineItem,
+  CompanyDetails,
+  ClientDetails,
+  PaymentDetails,
+  StoredInvoice,
+  CurrencyCode,
+  createEmptyPaymentDetails,
+} from '@/types/invoice';
 import { supabase } from '@/utils/supabase/client';
 import { InvoiceRow, invoiceToRowPayload, rowToStoredInvoice } from '@/utils/supabase/mappers';
 import {
@@ -8,6 +17,7 @@ import {
   flattenValidationErrors,
   InvoiceValidationErrors,
 } from '@/utils/validateInvoice';
+import { computeSubtotal, computeTaxAmount, computeTotal } from '@/utils/invoiceCalculations';
 
 interface SaveResult {
   error: string | null;
@@ -23,8 +33,17 @@ interface FetchListResult {
 }
 
 const INVOICE_NUMBER_PATTERN = /^(.*?)(\d+)$/;
-const DEFAULT_INVOICE_PREFIX = 'FAC-';
+const DEFAULT_INVOICE_PREFIX = 'CI-';
 const DEFAULT_INVOICE_PADDING = 4;
+
+/** Borrador del email del emisor; mutación sin set() para no re-renderizar suscriptores. */
+let draftCompanyEmail: string | undefined;
+/** Borrador del email del cliente; mutación sin set() para no re-renderizar suscriptores. */
+let draftClientEmail: string | undefined;
+/** Borrador del porcentaje de impuesto mientras el usuario escribe. */
+let draftTaxRate: number | undefined;
+/** Borrador de paymentDetails; mutación sin set() para no re-renderizar el PDF. */
+let draftPaymentDetails: Partial<PaymentDetails> | undefined;
 
 interface InvoiceState {
   invoice: Invoice;
@@ -36,11 +55,19 @@ interface InvoiceState {
 
   updateCompany: (company: Partial<CompanyDetails>) => void;
   updateClient: (client: Partial<ClientDetails>) => void;
-  updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items'>>) => void;
+  updatePaymentDetails: (details: Partial<PaymentDetails>) => void;
+  setDraftCompanyEmail: (email: string) => void;
+  setDraftClientEmail: (email: string) => void;
+  setDraftTaxRate: (rate: number) => void;
+  setDraftPaymentField: (field: keyof PaymentDetails, value: string) => void;
+  flushDraftFields: () => void;
+  setCurrency: (currency: CurrencyCode) => void;
+  updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items' | 'paymentDetails'>>) => void;
   addItem: () => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, item: Partial<LineItem>) => void;
   getSubtotal: () => number;
+  getTaxAmount: () => number;
   getTotal: () => number;
 
   newInvoice: () => void;
@@ -60,11 +87,17 @@ function buildInitialInvoice(): Invoice {
     date: new Date().toISOString().split('T')[0],
     dueDate: new Date().toISOString().split('T')[0],
     currency: 'USD',
-    taxRate: 21,
+    taxRate: 0,
     company: { name: '', email: '', address: '', taxId: '' },
-    client: { name: '', email: '', address: '' },
+    client: { name: '', email: '', address: '', taxId: '' },
+    paymentDetails: createEmptyPaymentDetails(),
     items: [{ id: generateId(), description: '', quantity: 1, price: 0 }],
   };
+}
+
+function effectiveTaxRate(invoice: Invoice): number {
+  if (draftTaxRate !== undefined) return draftTaxRate;
+  return Number.isFinite(invoice.taxRate) ? invoice.taxRate : 0;
 }
 
 function nextInvoiceNumberFrom(lastNumber: string | null): string {
@@ -107,20 +140,122 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   listError: null,
   validationErrors: {},
 
-  updateCompany: (companyData) =>
+  updateCompany: (companyData) => {
+    if ('email' in companyData) {
+      draftCompanyEmail = undefined;
+    }
     set((state) => ({
       invoice: { ...state.invoice, company: { ...state.invoice.company, ...companyData } },
       validationErrors: {},
-    })),
+    }));
+  },
 
-  updateClient: (clientData) =>
+  updateClient: (clientData) => {
+    if ('email' in clientData) {
+      draftClientEmail = undefined;
+    }
     set((state) => ({
       invoice: { ...state.invoice, client: { ...state.invoice.client, ...clientData } },
       validationErrors: {},
-    })),
+    }));
+  },
 
-  updateInvoiceDetails: (details) =>
-    set((state) => ({ invoice: { ...state.invoice, ...details }, validationErrors: {} })),
+  updatePaymentDetails: (details) => {
+    if (draftPaymentDetails) {
+      const nextDraft = { ...draftPaymentDetails };
+      for (const key of Object.keys(details) as Array<keyof PaymentDetails>) {
+        delete nextDraft[key];
+      }
+      draftPaymentDetails = Object.keys(nextDraft).length > 0 ? nextDraft : undefined;
+    }
+    set((state) => ({
+      invoice: {
+        ...state.invoice,
+        paymentDetails: { ...state.invoice.paymentDetails, ...details },
+      },
+      validationErrors: {},
+    }));
+  },
+
+  setDraftCompanyEmail: (email) => {
+    draftCompanyEmail = email;
+  },
+
+  setDraftClientEmail: (email) => {
+    draftClientEmail = email;
+  },
+
+  setDraftTaxRate: (rate) => {
+    draftTaxRate = rate;
+  },
+
+  setDraftPaymentField: (field, value) => {
+    draftPaymentDetails = { ...draftPaymentDetails, [field]: value };
+  },
+
+  flushDraftFields: () => {
+    const state = get();
+    let company = state.invoice.company;
+    let client = state.invoice.client;
+    let taxRate = state.invoice.taxRate;
+    let paymentDetails = state.invoice.paymentDetails;
+    let shouldUpdate = false;
+
+    if (draftCompanyEmail !== undefined) {
+      const committedEmail = draftCompanyEmail;
+      draftCompanyEmail = undefined;
+      if (committedEmail !== company.email) {
+        company = { ...company, email: committedEmail };
+        shouldUpdate = true;
+      }
+    }
+
+    if (draftClientEmail !== undefined) {
+      const committedEmail = draftClientEmail;
+      draftClientEmail = undefined;
+      if (committedEmail !== client.email) {
+        client = { ...client, email: committedEmail };
+        shouldUpdate = true;
+      }
+    }
+
+    if (draftTaxRate !== undefined) {
+      const committedRate = draftTaxRate;
+      draftTaxRate = undefined;
+      if (committedRate !== taxRate) {
+        taxRate = committedRate;
+        shouldUpdate = true;
+      }
+    }
+
+    if (draftPaymentDetails !== undefined) {
+      const committedPayment = draftPaymentDetails;
+      draftPaymentDetails = undefined;
+      paymentDetails = { ...paymentDetails, ...committedPayment };
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      set({
+        invoice: { ...state.invoice, company, client, taxRate, paymentDetails },
+        validationErrors: {},
+      });
+    }
+  },
+
+  setCurrency: (currency) => {
+    set((state) => ({
+      invoice: { ...state.invoice, currency },
+      validationErrors: {},
+    }));
+  },
+
+  updateInvoiceDetails: (details) => {
+    if ('taxRate' in details) {
+      draftTaxRate = undefined;
+    }
+    set((state) => ({ invoice: { ...state.invoice, ...details }, validationErrors: {} }));
+  },
 
   addItem: () =>
     set((state) => ({
@@ -146,23 +281,29 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
       validationErrors: {},
     })),
 
-  getSubtotal: () => {
-    const items = get().invoice.items;
-    return items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  getSubtotal: () => computeSubtotal(get().invoice.items),
+
+  getTaxAmount: () => {
+    const invoice = get().invoice;
+    return computeTaxAmount(get().getSubtotal(), effectiveTaxRate(invoice));
   },
 
   getTotal: () => {
-    const subtotal = get().getSubtotal();
-    const taxRate = get().invoice.taxRate;
-    return subtotal + subtotal * (taxRate / 100);
+    const invoice = get().invoice;
+    return computeTotal(get().getSubtotal(), effectiveTaxRate(invoice));
   },
 
   newInvoice: () => {
+    draftCompanyEmail = undefined;
+    draftClientEmail = undefined;
+    draftTaxRate = undefined;
+    draftPaymentDetails = undefined;
     set({ invoice: buildInitialInvoice(), currentInvoiceId: null, validationErrors: {} });
   },
 
   saveInvoiceToCloud: async (): Promise<SaveResult> => {
     try {
+      get().flushDraftFields();
       const { invoice } = get();
       const validationErrors = validateInvoice(invoice);
       if (hasValidationErrors(validationErrors)) {
@@ -192,6 +333,7 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
 
   updateInvoiceInCloud: async (id: string): Promise<SaveResult> => {
     try {
+      get().flushDraftFields();
       const { invoice } = get();
       const validationErrors = validateInvoice(invoice);
       if (hasValidationErrors(validationErrors)) {
@@ -273,8 +415,13 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         items: stored.items,
         currency: stored.currency,
         taxRate: stored.taxRate,
+        paymentDetails: stored.paymentDetails,
       };
 
+      draftCompanyEmail = undefined;
+      draftClientEmail = undefined;
+      draftTaxRate = undefined;
+      draftPaymentDetails = undefined;
       set({ invoice: invoiceFields, currentInvoiceId: stored.id, validationErrors: {} });
       return { error: null, id: stored.id };
     } catch (err) {

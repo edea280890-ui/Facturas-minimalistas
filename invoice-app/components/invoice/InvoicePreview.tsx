@@ -18,7 +18,7 @@ const downloadButtonClass =
   'whitespace-nowrap rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800';
 
 export default function InvoicePreview() {
-  const { invoice, getSubtotal, getTotal } = useInvoiceStore();
+  const { invoice, getSubtotal, getTaxAmount, getTotal } = useInvoiceStore();
   // El <PDFViewer> de @react-pdf/renderer incrusta el visor de PDF nativo del
   // navegador en un iframe. En navegadores de escritorio funciona bien, pero
   // en móviles es conocido por no ser fiable: Android normalmente no lo
@@ -30,7 +30,14 @@ export default function InvoicePreview() {
   // dispositivos, al ser una descarga de blob normal).
   const isMobileViewer = useMediaQuery(MOBILE_VIEWER_QUERY);
 
-  const document = <InvoiceDocument data={invoice} subtotal={getSubtotal()} total={getTotal()} />;
+  const document = (
+    <InvoiceDocument
+      data={invoice}
+      subtotal={getSubtotal()}
+      taxAmount={getTaxAmount()}
+      total={getTotal()}
+    />
+  );
   const fileName = invoicePdfFilename(invoice.invoiceNumber);
 
   return (

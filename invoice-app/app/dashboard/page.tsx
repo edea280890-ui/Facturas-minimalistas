@@ -8,10 +8,11 @@ import { useInvoiceStore } from '@/store/useInvoiceStore';
 import { useToastStore } from '@/store/useToastStore';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { StoredInvoice } from '@/types/invoice';
+import { computeSubtotal, computeTotal } from '@/utils/invoiceCalculations';
 
 function invoiceTotal(invoice: StoredInvoice): number {
-  const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
-  return subtotal + subtotal * (invoice.taxRate / 100);
+  const subtotal = computeSubtotal(invoice.items);
+  return computeTotal(subtotal, invoice.taxRate);
 }
 
 function DashboardContent() {

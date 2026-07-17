@@ -1,10 +1,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { Metadata } from "next"; // Import necesario para el tipo Metadata
-import { Analytics } from "@vercel/analytics/react"; // Import para Analytics
+import { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import Toaster from "@/components/ui/Toaster";
 import ProfileSync from "@/components/providers/ProfileSync";
 import SupabaseConfigBanner from "@/components/providers/SupabaseConfigBanner";
 import Footer from "@/components/layout/Footer";
+import { PRODUCT_NAME, PRODUCT_TITLE } from "@/utils/brand";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Generador de Facturas",
-  description: "Generador de facturas minimalista",
+  title: PRODUCT_TITLE,
+  description: `${PRODUCT_NAME} — Commercial Invoice Generator for B2B service exporters. Operated by Sirapp Studio.`,
 };
 
 export default function RootLayout({
