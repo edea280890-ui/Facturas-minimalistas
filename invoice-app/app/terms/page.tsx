@@ -8,12 +8,24 @@ export const metadata: Metadata = {
   description: 'Términos y Condiciones de uso del servicio Generador de Facturas.',
 };
 
-const LAST_UPDATED = '16 de julio de 2026';
-const CONTACT_EMAIL = 'edea280890@gmail.com';
+const LAST_UPDATED = '17 de julio de 2026';
+const SUPPORT_EMAIL = 'soporte@sirappstudio.com';
+
+/** Texto obligatorio Merchant of Record (Lemon Squeezy). No modificar. */
+const LEMON_SQUEEZY_MOR_NOTICE =
+  'El procesamiento de pagos, la facturación y la recaudación de impuestos de las suscripciones generadas en este sitio web son operados y gestionados de forma segura por Lemon Squeezy. Lemon Squeezy actúa como el comerciante registrado (Merchant of Record) oficial para todas nuestras transacciones globales.';
 
 export default function TermsPage() {
   return (
     <LegalPageLayout title="Términos y Condiciones" lastUpdated={LAST_UPDATED}>
+      <aside
+        className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-slate-800"
+        aria-label="Aviso Merchant of Record"
+      >
+        <h2 className="mb-2 text-base font-semibold text-slate-900">Merchant of Record</h2>
+        <p className="font-medium leading-relaxed">{LEMON_SQUEEZY_MOR_NOTICE}</p>
+      </aside>
+
       <p>
         Estos Términos y Condiciones (&quot;Términos&quot;) regulan el acceso y uso del servicio
         <strong> Generador de Facturas</strong> (el &quot;Servicio&quot;), operado como un producto de software
@@ -23,8 +35,8 @@ export default function TermsPage() {
 
       <LegalSection title="1. Descripción del Servicio">
         <p>
-          Generador de Facturas es una herramienta que permite crear, previsualizar y exportar facturas en
-          formato PDF. El Servicio ofrece dos niveles de acceso:
+          Generador de Facturas es una herramienta que permite crear, previsualizar y exportar facturas
+          comerciales (Commercial Invoices) en formato PDF. El Servicio ofrece dos niveles de acceso:
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
@@ -49,18 +61,24 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Pagos, Facturación y Reembolsos">
+      <LegalSection title="3. Pagos, Facturación e Impuestos">
+        <p>{LEMON_SQUEEZY_MOR_NOTICE}</p>
         <p>
-          El Plan Pro se cobra como un pago único a través de un proveedor de pagos externo (Hotmart y, cuando
-          aplique, Stripe). No almacenamos los datos de tu tarjeta de pago; estos son procesados directamente
-          por dicho proveedor bajo sus propios términos y estándares de seguridad (PCI-DSS). Tras un pago
-          exitoso, el acceso Pro se asocia al correo electrónico usado en la compra.
+          El Plan Pro se cobra como un pago único. No almacenamos los datos de tu tarjeta de pago; estos son
+          procesados de forma segura por Lemon Squeezy bajo sus propios términos y estándares de seguridad
+          (incluyendo PCI-DSS). Tras un pago exitoso, el acceso Pro se asocia al correo electrónico usado en
+          la compra.
         </p>
         <p>
-          Ofrecemos un reembolso completo si lo solicitas dentro de los <strong>14 días</strong> posteriores a
-          la compra, escribiendo a <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>{' '}
-          indicando el correo con el que realizaste la compra. Pasado ese plazo, el pago no es reembolsable,
-          salvo que la ley aplicable disponga lo contrario.
+          Para solicitudes de reembolso, consulta nuestra{' '}
+          <a className="underline" href="/refund">
+            Política de Reembolso
+          </a>{' '}
+          o escribe a{' '}
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
 
@@ -79,7 +97,10 @@ export default function TermsPage() {
           Tú conservas todos los derechos sobre los datos que introduces en tus facturas (información de tu
           empresa, tus clientes, conceptos y montos). Nosotros no reclamamos propiedad sobre dicho contenido;
           únicamente lo almacenamos y procesamos para prestarte el Servicio, según se describe en nuestra{' '}
-          <a className="underline" href="/privacy">Política de Privacidad</a>.
+          <a className="underline" href="/privacy">
+            Política de Privacidad
+          </a>
+          .
         </p>
         <p>
           El software, marca, diseño e interfaz del Generador de Facturas son propiedad exclusiva del
@@ -108,8 +129,11 @@ export default function TermsPage() {
       <LegalSection title="8. Terminación">
         <p>
           Puedes dejar de usar el Servicio y solicitar la eliminación de tu cuenta y tus datos en cualquier
-          momento, escribiendo a <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-          Podemos suspender o cancelar el acceso de cualquier cuenta que incumpla estos Términos.
+          momento, escribiendo a{' '}
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          . Podemos suspender o cancelar el acceso de cualquier cuenta que incumpla estos Términos.
         </p>
       </LegalSection>
 
@@ -124,7 +148,10 @@ export default function TermsPage() {
       <LegalSection title="10. Contacto">
         <p>
           Si tienes preguntas sobre estos Términos, puedes escribirnos a{' '}
-          <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
     </LegalPageLayout>
