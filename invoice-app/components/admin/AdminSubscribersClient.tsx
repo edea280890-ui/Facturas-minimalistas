@@ -106,14 +106,14 @@ export default function AdminSubscribersClient({
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-left text-sm">
+        <div className="max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-slate-100 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Alta</th>
-                <th className="px-4 py-3 text-right">Acciones</th>
+                <th className="whitespace-nowrap px-4 py-3">Email</th>
+                <th className="whitespace-nowrap px-4 py-3">Estado</th>
+                <th className="whitespace-nowrap px-4 py-3">Alta</th>
+                <th className="whitespace-nowrap px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -126,8 +126,8 @@ export default function AdminSubscribersClient({
               ) : (
                 subscribers.map((row) => (
                   <tr key={row.email} className="border-b border-slate-50 last:border-0">
-                    <td className="px-4 py-3 font-medium text-slate-800">{row.email}</td>
-                    <td className="px-4 py-3">
+                    <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-800">{row.email}</td>
+                    <td className="whitespace-nowrap px-4 py-3">
                       <span
                         className={
                           row.status === 'active'
@@ -138,10 +138,10 @@ export default function AdminSubscribersClient({
                         {row.status === 'active' ? 'Activo' : 'Cancelado'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-500">
+                    <td className="whitespace-nowrap px-4 py-3 text-slate-500">
                       {new Date(row.created_at).toLocaleDateString('es-ES')}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
                       {row.status === 'active' ? (
                         <button
                           type="button"
