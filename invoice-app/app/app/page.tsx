@@ -10,7 +10,7 @@ const InvoicePreviewDynamic = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full min-h-[600px] flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-slate-400">
+      <div className="flex h-full min-h-[420px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400">
         Cargando visor...
       </div>
     ),
@@ -31,12 +31,19 @@ export default function AppPage() {
 
         <PricingSection />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <section className="h-[calc(100vh-120px)] overflow-y-auto pr-2 pb-8">
+        {/*
+          Móvil/tablet (< lg): una sola columna, flujo natural de página, sin
+          alturas forzadas a 100vh (evita el "doble scroll de pantalla completa").
+          Escritorio (lg+): dos columnas lado a lado, cada una con su propio
+          scroll interno y la previsualización fija (sticky) para que quede
+          siempre visible mientras se completa el formulario.
+        */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
+          <section className="lg:h-[calc(100vh-120px)] lg:overflow-y-auto lg:pr-2 lg:pb-8">
             <InvoiceForm />
           </section>
 
-          <section className="h-[calc(100vh-120px)]">
+          <section className="lg:sticky lg:top-4 lg:h-[calc(100vh-120px)]">
             <InvoicePreviewDynamic />
           </section>
         </div>
