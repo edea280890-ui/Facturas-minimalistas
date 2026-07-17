@@ -44,7 +44,7 @@ export default function PricingSection() {
   const isCurrentlyPro = session && profileLoaded && isPremium;
 
   return (
-    <section id="precios" className="mb-10 scroll-mt-8">
+    <section id="precios" className="mt-16 scroll-mt-8">
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-slate-900">Precios simples, sin sorpresas</h2>
         <p className="mt-1 text-slate-500">Empieza gratis. Actualiza cuando quieras guardar tus facturas en la nube.</p>

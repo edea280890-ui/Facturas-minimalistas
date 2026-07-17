@@ -29,8 +29,6 @@ export default function AppPage() {
       <div className="max-w-7xl mx-auto">
         <Header />
 
-        <PricingSection />
-
         {/*
           Móvil/tablet (< lg): una sola columna, flujo natural de página, sin
           alturas forzadas a 100vh (evita el "doble scroll de pantalla completa").
@@ -47,6 +45,13 @@ export default function AppPage() {
             <InvoicePreviewDynamic />
           </section>
         </div>
+
+        {/*
+          Los banners de planes (Gratis/Pro) se muestran al final de la
+          página, después del formulario y la previsualización, para que no
+          se sientan invasivos apenas se entra a la app.
+        */}
+        <PricingSection />
       </div>
     </main>
   );
