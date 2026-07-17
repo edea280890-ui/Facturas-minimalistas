@@ -118,10 +118,10 @@ const styles = StyleSheet.create({
 const PAYMENT_LINES: Array<{ key: keyof PaymentDetails; label: string }> = [
   { key: 'bankName', label: 'Bank Name' },
   { key: 'accountName', label: 'Account Holder' },
-  { key: 'accountNumber', label: 'IBAN / Account Number' },
+  { key: 'accountNumber', label: 'Account Number / IBAN' },
   { key: 'swiftCode', label: 'SWIFT / BIC' },
   { key: 'routingNumber', label: 'Routing Number' },
-  { key: 'alternativePayment', label: 'Alternative Payment' },
+  { key: 'alternativePayment', label: 'Alternative Method' },
 ];
 
 function hasText(value: string | undefined | null): value is string {

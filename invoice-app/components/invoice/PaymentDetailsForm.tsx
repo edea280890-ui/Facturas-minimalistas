@@ -19,14 +19,14 @@ const PAYMENT_FIELDS: Array<{
   autoComplete?: string;
 }> = [
   { key: 'bankName', label: 'Bank Name', placeholder: 'e.g. Chase, HSBC', autoComplete: 'organization' },
-  { key: 'accountName', label: 'Account Holder Name', placeholder: 'Name on the account', autoComplete: 'name' },
-  { key: 'accountNumber', label: 'IBAN / Account Number', placeholder: 'IBAN or account number', autoComplete: 'off' },
-  { key: 'swiftCode', label: 'SWIFT / BIC Code', placeholder: 'e.g. CHASUS33', autoComplete: 'off' },
+  { key: 'accountName', label: 'Account Holder', placeholder: 'Name on the account', autoComplete: 'name' },
+  { key: 'accountNumber', label: 'Account Number / IBAN', placeholder: 'IBAN or account number', autoComplete: 'off' },
+  { key: 'swiftCode', label: 'SWIFT / BIC', placeholder: 'e.g. CHASUS33', autoComplete: 'off' },
   { key: 'routingNumber', label: 'Routing Number', placeholder: 'ABA / routing (optional)', autoComplete: 'off' },
   {
     key: 'alternativePayment',
-    label: 'Alternative Payment',
-    placeholder: 'Wise / Payoneer / PayPal / etc.',
+    label: 'Alternative Method',
+    placeholder: 'Wise / Payoneer / etc.',
     autoComplete: 'off',
   },
 ];
