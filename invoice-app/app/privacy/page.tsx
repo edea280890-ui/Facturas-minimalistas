@@ -1,116 +1,82 @@
 import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
+import { LEMON_SQUEEZY_MOR_NOTICE, OPERATOR_NAME, PRODUCT_NAME, PRODUCT_TITLE, SUPPORT_EMAIL } from '@/utils/brand';
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidad — Generador de Facturas',
-  description: 'Política de Privacidad del servicio Generador de Facturas.',
+  title: `Privacy — ${PRODUCT_TITLE}`,
+  description: `Privacy Policy for ${PRODUCT_NAME} by ${OPERATOR_NAME}.`,
 };
 
 const LAST_UPDATED = '17 de julio de 2026';
-const SUPPORT_EMAIL = 'soporte@sirappstudio.com';
 
 export default function PrivacyPage() {
   return (
-    <LegalPageLayout title="Política de Privacidad" lastUpdated={LAST_UPDATED}>
+    <LegalPageLayout title="Privacy Policy" lastUpdated={LAST_UPDATED}>
       <p>
-        En <strong>Generador de Facturas</strong> nos tomamos en serio la privacidad de tus datos. Esta
-        Política de Privacidad explica qué información recopilamos, cómo la usamos y qué derechos tienes
-        sobre ella.
+        <strong>{PRODUCT_NAME}</strong> by {OPERATOR_NAME} respects your privacy. This Policy explains what
+        information we collect, how we use it and your rights.
       </p>
 
-      <LegalSection title="1. Qué información recopilamos">
+      <LegalSection title="1. Information we collect">
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Datos de cuenta:</strong> tu dirección de correo electrónico, utilizada únicamente para
-            autenticarte mediante enlaces de acceso (&quot;Magic Link&quot;), sin contraseñas.
+            <strong>Account data:</strong> your email address, used for magic-link authentication.
           </li>
           <li>
-            <strong>Datos de facturación de tus facturas:</strong> si utilizas el Plan Pro para guardar
-            facturas en la nube, almacenamos la información que tú introduces (datos de tu empresa, de tus
-            clientes, conceptos, importes y divisa), así como el logo que decidas subir de forma opcional.
+            <strong>Invoice data:</strong> if you use Pro cloud storage, we store the company, client, line
+            items, amounts, currency, Tax ID and payment details you enter, plus optional logos.
           </li>
           <li>
-            <strong>Datos de pago:</strong> cuando adquieres el Plan Pro, el procesamiento del pago, la
-            facturación y la recaudación de impuestos los realiza Lemon Squeezy como Merchant of Record. No
-            almacenamos números de tarjeta ni datos financieros completos en nuestros propios servidores;
-            solo recibimos una confirmación del pago y la información necesaria para habilitar tu acceso.
+            <strong>Payment data:</strong> {LEMON_SQUEEZY_MOR_NOTICE} We do not store full card numbers on
+            our servers.
           </li>
           <li>
-            <strong>Datos técnicos básicos:</strong> información estándar de uso y de servidor (por ejemplo,
-            registros de errores) generada automáticamente por la infraestructura en la que se ejecuta el
-            Servicio.
+            <strong>Technical data:</strong> basic server logs needed to operate and debug the Service.
           </li>
         </ul>
       </LegalSection>
 
-      <LegalSection title="2. Cómo usamos tu información">
+      <LegalSection title="2. How we use information">
         <ul className="list-disc space-y-1 pl-5">
-          <li>Para prestarte el Servicio: crear, guardar, listar, editar y eliminar tus facturas.</li>
-          <li>Para autenticarte y proteger el acceso a tu cuenta.</li>
-          <li>Para procesar tu pago (a través de Lemon Squeezy) y habilitar las funciones del Plan Pro.</li>
-          <li>Para comunicarnos contigo sobre cambios relevantes al Servicio o a estos documentos legales.</li>
-          <li>Para diagnosticar y corregir errores técnicos.</li>
+          <li>To provide the Service (create, save, list, edit and delete invoices).</li>
+          <li>To authenticate and protect your account.</li>
+          <li>To process Pro payments via Lemon Squeezy.</li>
+          <li>To communicate material changes to the Service or legal documents.</li>
+          <li>To diagnose and fix technical issues.</li>
         </ul>
-        <p>No vendemos ni compartimos tu información personal con terceros con fines publicitarios.</p>
+        <p>We do not sell personal information for advertising.</p>
       </LegalSection>
 
-      <LegalSection title="3. Con quién compartimos tu información">
-        <p>Utilizamos los siguientes proveedores externos (&quot;subencargados&quot;) para operar el Servicio:</p>
+      <LegalSection title="3. Processors">
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Supabase:</strong> autenticación, base de datos y almacenamiento de archivos (logos).
+            <strong>Supabase:</strong> auth, database and file storage.
           </li>
           <li>
-            <strong>Lemon Squeezy:</strong> Merchant of Record responsable del procesamiento de pagos, la
-            facturación y la recaudación de impuestos de las transacciones generadas en este sitio web.
+            <strong>Lemon Squeezy:</strong> Merchant of Record for payments, invoicing and tax collection.
           </li>
           <li>
-            <strong>Vercel</strong> (u otro proveedor de hosting): alojamiento de la aplicación web.
+            <strong>Vercel</strong> (or equivalent): application hosting.
           </li>
         </ul>
-        <p>
-          Cada uno de estos proveedores procesa tus datos únicamente en la medida necesaria para prestar su
-          servicio, conforme a sus propias políticas de privacidad y acuerdos de tratamiento de datos.
-        </p>
       </LegalSection>
 
-      <LegalSection title="4. Almacenamiento local y sesión">
+      <LegalSection title="4. Retention & deletion">
         <p>
-          El Servicio utiliza el almacenamiento local (<code>localStorage</code>) de tu navegador para
-          mantener tu sesión iniciada entre visitas, evitando que tengas que autenticarte cada vez. Esta
-          información permanece en tu propio dispositivo y se elimina si cierras sesión o borras los datos
-          de tu navegador.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="5. Conservación y eliminación de datos">
-        <p>
-          Conservamos tus datos mientras tu cuenta esté activa. Puedes solicitar la eliminación completa de
-          tu cuenta y de todas tus facturas guardadas en cualquier momento escribiendo a{' '}
+          We keep your data while your account is active. Request deletion at{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
-          . Procesaremos la solicitud en un plazo razonable, salvo que estemos obligados a conservar cierta
-          información por motivos legales o contables (por ejemplo, registros de pagos gestionados por Lemon
-          Squeezy).
+          . We will process requests within a reasonable time, except where law requires retention of certain
+          payment records held by Lemon Squeezy.
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Seguridad">
+      <LegalSection title="5. Your rights">
         <p>
-          Aplicamos controles de acceso a nivel de base de datos (Row Level Security) para que cada usuario
-          solo pueda ver, modificar o eliminar sus propias facturas. Ningún usuario puede otorgarse a sí
-          mismo acceso premium; ese cambio solo puede realizarlo nuestro sistema de pagos de forma
-          automatizada y verificada.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="7. Tus derechos">
-        <p>
-          Dependiendo de tu ubicación, puedes tener derecho a acceder, corregir, exportar o eliminar tus
-          datos personales, así como a oponerte a determinados usos de estos. Puedes ejercer estos derechos
-          escribiéndonos a{' '}
+          Depending on your location, you may have rights to access, correct, export or delete your personal
+          data. Contact{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
@@ -118,23 +84,9 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Menores de edad">
+      <LegalSection title="6. Contact">
         <p>
-          El Servicio no está dirigido a menores de 18 años y no recopilamos intencionalmente información de
-          menores.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="9. Cambios a esta Política">
-        <p>
-          Podemos actualizar esta Política de Privacidad ocasionalmente. Publicaremos cualquier cambio en
-          esta misma página junto con la fecha de la &quot;Última actualización&quot;.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="10. Contacto">
-        <p>
-          Para cualquier consulta relacionada con la privacidad de tus datos, escríbenos a{' '}
+          Privacy questions:{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>

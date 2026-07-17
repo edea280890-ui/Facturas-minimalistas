@@ -9,6 +9,7 @@ import { useToastStore } from '@/store/useToastStore';
 import { useProfileStore, pollProfileUntilPremium } from '@/store/useProfileStore';
 import { useUpgradeCheckout } from '@/hooks/useUpgradeCheckout';
 import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
+import { PRODUCT_NAME, PRODUCT_TAGLINE } from '@/utils/brand';
 
 export default function Header() {
   const session = useAuthStore((s) => s.session);
@@ -129,10 +130,9 @@ export default function Header() {
     <header className="mb-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Generador de Facturas</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{PRODUCT_NAME}</h1>
           <p className="text-slate-500">
-            Crea, previsualiza y descarga facturas profesionales en PDF en segundos — gratis, o guarda todo
-            en la nube por un pago único.
+            {PRODUCT_TAGLINE} for B2B service exporters — create, preview and download professional PDFs.
           </p>
         </div>
 

@@ -2,79 +2,77 @@ import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
 import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
+import {
+  LEMON_SQUEEZY_MOR_NOTICE,
+  OPERATOR_NAME,
+  PRODUCT_NAME,
+  PRODUCT_TITLE,
+  SUPPORT_EMAIL,
+} from '@/utils/brand';
 
 export const metadata: Metadata = {
-  title: 'Términos y Condiciones — Generador de Facturas',
-  description: 'Términos y Condiciones de uso del servicio Generador de Facturas.',
+  title: `Terms — ${PRODUCT_TITLE}`,
+  description: `Terms of Service for ${PRODUCT_NAME} by ${OPERATOR_NAME}.`,
 };
 
 const LAST_UPDATED = '17 de julio de 2026';
-const SUPPORT_EMAIL = 'soporte@sirappstudio.com';
-
-/** Texto obligatorio Merchant of Record (Lemon Squeezy). No modificar. */
-const LEMON_SQUEEZY_MOR_NOTICE =
-  'El procesamiento de pagos, la facturación y la recaudación de impuestos de las suscripciones generadas en este sitio web son operados y gestionados de forma segura por Lemon Squeezy. Lemon Squeezy actúa como el comerciante registrado (Merchant of Record) oficial para todas nuestras transacciones globales.';
 
 export default function TermsPage() {
   return (
-    <LegalPageLayout title="Términos y Condiciones" lastUpdated={LAST_UPDATED}>
+    <LegalPageLayout title="Terms of Service" lastUpdated={LAST_UPDATED}>
       <aside
         className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-slate-800"
-        aria-label="Aviso Merchant of Record"
+        aria-label="Merchant of Record notice"
       >
         <h2 className="mb-2 text-base font-semibold text-slate-900">Merchant of Record</h2>
         <p className="font-medium leading-relaxed">{LEMON_SQUEEZY_MOR_NOTICE}</p>
       </aside>
 
       <p>
-        Estos Términos y Condiciones (&quot;Términos&quot;) regulan el acceso y uso del servicio
-        <strong> Generador de Facturas</strong> (el &quot;Servicio&quot;), operado como un producto de software
-        como servicio (SaaS). Al acceder o utilizar el Servicio aceptas quedar sujeto a estos Términos.
-        Si no estás de acuerdo con alguna parte de ellos, no debes utilizar el Servicio.
+        These Terms of Service (&quot;Terms&quot;) govern access to and use of{' '}
+        <strong>{PRODUCT_NAME}</strong> (the &quot;Service&quot;), a Commercial Invoice Generator operated by{' '}
+        {OPERATOR_NAME}. By accessing or using the Service you agree to these Terms. If you do not agree,
+        do not use the Service.
       </p>
 
-      <LegalSection title="1. Descripción del Servicio">
+      <LegalSection title="1. Service Description">
         <p>
-          Generador de Facturas es una herramienta que permite crear, previsualizar y exportar facturas
-          comerciales (Commercial Invoices) en formato PDF. El Servicio ofrece dos niveles de acceso:
+          {PRODUCT_NAME} helps B2B service exporters create, preview and download Commercial Invoices as PDF.
+          The Service offers two access levels:
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Plan Gratuito:</strong> creación ilimitada de facturas, previsualización en vivo y
-            descarga en PDF, sin necesidad de crear una cuenta.
+            <strong>Free plan:</strong> unlimited invoice creation, live preview and PDF download, without
+            requiring an account.
           </li>
           <li>
-            <strong>Plan Pro ({PRO_PRICE_USD_LABEL} USD, pago único):</strong> incluye además guardado de
-            facturas en la nube, un panel de gestión (&quot;Mis facturas&quot;) para consultarlas, editarlas y
-            eliminarlas, numeración automática secuencial y carga de logo personalizado. El Plan Pro es un
-            pago único que otorga acceso de por vida a estas funciones, sin cobros recurrentes.
+            <strong>Pro plan ({PRO_PRICE_USD_LABEL} USD, one-time):</strong> cloud storage, invoice dashboard,
+            sequential numbering and custom logo upload. Pro is a one-time payment for lifetime access to
+            these features, with no recurring charges.
           </li>
         </ul>
       </LegalSection>
 
-      <LegalSection title="2. Cuentas de Usuario">
+      <LegalSection title="2. User Accounts">
         <p>
-          Para acceder a las funciones del Plan Pro es necesario crear una cuenta mediante un enlace de
-          acceso enviado a tu correo electrónico (&quot;Magic Link&quot;), sin necesidad de contraseña. Eres
-          responsable de mantener el acceso a tu correo electrónico y de toda la actividad que ocurra bajo tu
-          cuenta. Debes notificarnos de inmediato ante cualquier uso no autorizado de tu cuenta.
+          Pro features require an account created via a magic link sent to your email (no password). You are
+          responsible for access to that email and for activity under your account.
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Pagos, Facturación e Impuestos">
+      <LegalSection title="3. Payments, Billing & Taxes">
         <p>{LEMON_SQUEEZY_MOR_NOTICE}</p>
         <p>
-          El Plan Pro se cobra como un pago único. No almacenamos los datos de tu tarjeta de pago; estos son
-          procesados de forma segura por Lemon Squeezy bajo sus propios términos y estándares de seguridad
-          (incluyendo PCI-DSS). Tras un pago exitoso, el acceso Pro se asocia al correo electrónico usado en
-          la compra.
+          We do not store your card details. Payments are processed securely by Lemon Squeezy under their
+          terms and security standards (including PCI-DSS). After a successful payment, Pro access is linked
+          to the email used for the purchase.
         </p>
         <p>
-          Para solicitudes de reembolso, consulta nuestra{' '}
+          For refunds, see our{' '}
           <a className="underline" href="/refund">
-            Política de Reembolso
+            Refund Policy
           </a>{' '}
-          o escribe a{' '}
+          or email{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
@@ -82,72 +80,62 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Uso Aceptable">
-        <p>Al utilizar el Servicio te comprometes a no:</p>
+      <LegalSection title="4. Acceptable Use">
+        <p>You agree not to:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Utilizar el Servicio para actividades ilegales, fraudulentas o que infrinjan derechos de terceros.</li>
-          <li>Intentar vulnerar, sobrecargar o comprometer la seguridad o disponibilidad del Servicio.</li>
-          <li>Revender, sublicenciar o redistribuir el Servicio sin autorización expresa.</li>
-          <li>Cargar contenido difamatorio, ofensivo o que infrinja derechos de propiedad intelectual de terceros.</li>
+          <li>Use the Service for illegal, fraudulent or infringing activities.</li>
+          <li>Attempt to breach, overload or compromise the Service.</li>
+          <li>Resell or sublicense the Service without written permission.</li>
+          <li>Upload content that violates third-party intellectual property rights.</li>
         </ul>
       </LegalSection>
 
-      <LegalSection title="5. Propiedad y Contenido del Usuario">
+      <LegalSection title="5. Ownership & User Content">
         <p>
-          Tú conservas todos los derechos sobre los datos que introduces en tus facturas (información de tu
-          empresa, tus clientes, conceptos y montos). Nosotros no reclamamos propiedad sobre dicho contenido;
-          únicamente lo almacenamos y procesamos para prestarte el Servicio, según se describe en nuestra{' '}
+          You retain all rights to the data you enter into invoices. We process that content only to provide
+          the Service, as described in our{' '}
           <a className="underline" href="/privacy">
-            Política de Privacidad
+            Privacy Policy
           </a>
-          .
-        </p>
-        <p>
-          El software, marca, diseño e interfaz del Generador de Facturas son propiedad exclusiva del
-          operador del Servicio y están protegidos por las leyes de propiedad intelectual aplicables.
+          . The {PRODUCT_NAME} software, brand and UI are owned by {OPERATOR_NAME}.
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Disponibilidad del Servicio">
+      <LegalSection title="6. Availability">
         <p>
-          Nos esforzamos por mantener el Servicio disponible de forma continua, pero no garantizamos que
-          funcione de manera ininterrumpida o libre de errores. Podemos suspender temporalmente el Servicio
-          por mantenimiento, actualizaciones o causas de fuerza mayor, incluyendo interrupciones de
-          proveedores externos de infraestructura (hosting, base de datos o procesamiento de pagos).
+          We aim for continuous availability but do not guarantee uninterrupted or error-free operation.
+          Maintenance, updates or third-party outages may temporarily affect the Service.
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Limitación de Responsabilidad">
+      <LegalSection title="7. Limitation of Liability">
         <p>
-          El Servicio se proporciona &quot;tal cual&quot; y &quot;según disponibilidad&quot;, sin garantías de
-          ningún tipo, expresas o implícitas. En la máxima medida permitida por la ley aplicable, no seremos
-          responsables por daños indirectos, incidentales, especiales o consecuentes derivados del uso o la
-          imposibilidad de uso del Servicio, incluyendo pérdida de datos o de ingresos.
+          The Service is provided &quot;as is&quot; and &quot;as available&quot;. To the maximum extent
+          permitted by law, we are not liable for indirect, incidental, special or consequential damages
+          arising from use of the Service.
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Terminación">
+      <LegalSection title="8. Termination">
         <p>
-          Puedes dejar de usar el Servicio y solicitar la eliminación de tu cuenta y tus datos en cualquier
-          momento, escribiendo a{' '}
+          You may stop using the Service and request account deletion at any time by emailing{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
-          . Podemos suspender o cancelar el acceso de cualquier cuenta que incumpla estos Términos.
+          . We may suspend accounts that violate these Terms.
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Cambios a estos Términos">
+      <LegalSection title="9. Changes">
         <p>
-          Podemos actualizar estos Términos ocasionalmente. Publicaremos cualquier cambio en esta misma
-          página junto con la fecha de la &quot;Última actualización&quot;. El uso continuado del Servicio
-          después de un cambio implica la aceptación de los nuevos Términos.
+          We may update these Terms from time to time. Changes will be posted on this page with an updated
+          &quot;Last updated&quot; date. Continued use constitutes acceptance of the revised Terms.
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Contacto">
+      <LegalSection title="10. Contact">
         <p>
-          Si tienes preguntas sobre estos Términos, puedes escribirnos a{' '}
+          Questions about these Terms:{' '}
           <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>

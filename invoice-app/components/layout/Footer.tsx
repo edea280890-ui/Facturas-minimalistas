@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-
-const SUPPORT_EMAIL = 'soporte@sirappstudio.com';
+import { OPERATOR_NAME, PRODUCT_NAME, SUPPORT_EMAIL } from '@/utils/brand';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -9,9 +8,11 @@ export default function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between md:px-8">
-        <p>© {year} Generador de Facturas. Todos los derechos reservados.</p>
+        <p>
+          © {year} {PRODUCT_NAME} by {OPERATOR_NAME}. All rights reserved.
+        </p>
 
-        <nav aria-label="Enlaces legales y contacto" className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <nav aria-label="Legal and contact links" className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link href="/terms" className="hover:text-slate-900">
             Terms
           </Link>
