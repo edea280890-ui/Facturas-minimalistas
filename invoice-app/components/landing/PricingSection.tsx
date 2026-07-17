@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useUpgradeCheckout } from '@/hooks/useUpgradeCheckout';
+import PremiumButton from '@/components/PremiumButton';
 import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
 
 const FREE_FEATURES = [
@@ -31,10 +32,8 @@ export default function PricingSection() {
   const { upgrading, startCheckout } = useUpgradeCheckout();
 
   const handleProClick = () => {
-    // Hotmart no exige sesión previa (el webhook provisiona por email).
-    // Stripe sí: el checkout se crea para el usuario autenticado.
-    const usingHotmart = Boolean(process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL?.trim());
-    if (!usingHotmart && !session) {
+    // Lemon Squeezy requiere sesión (custom user_id → webhook → profiles.is_premium).
+    if (!session) {
       showToast('info', 'Inicia sesión desde el botón "Iniciar Sesión" arriba y vuelve a intentarlo.');
       return;
     }
@@ -85,6 +84,11 @@ export default function PricingSection() {
             <div className="mt-6 rounded-lg bg-emerald-500/10 px-4 py-2 text-center text-sm font-medium text-emerald-300">
               Ya tienes acceso Pro ✓
             </div>
+          ) : session?.user?.id ? (
+            <PremiumButton
+              userId={session.user.id}
+              className="mt-6 w-full rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-50"
+            />
           ) : (
             <button
               onClick={handleProClick}

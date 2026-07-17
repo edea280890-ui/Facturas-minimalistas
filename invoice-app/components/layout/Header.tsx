@@ -8,7 +8,7 @@ import { useInvoiceStore } from '@/store/useInvoiceStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useProfileStore, pollProfileUntilPremium } from '@/store/useProfileStore';
 import { useUpgradeCheckout } from '@/hooks/useUpgradeCheckout';
-import { PRO_PRICE_USD_LABEL } from '@/utils/stripe/constants';
+import PremiumButton from '@/components/PremiumButton';
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from '@/utils/brand';
 
 export default function Header() {
@@ -156,9 +156,11 @@ export default function Header() {
               <button onClick={newInvoice} className={btnGhost}>
                 Nueva factura
               </button>
-              {profileLoaded && !isPremium ? (
+              {profileLoaded && !isPremium && session.user.id ? (
+                <PremiumButton userId={session.user.id} className={btnPrimary} />
+              ) : profileLoaded && !isPremium ? (
                 <button onClick={startCheckout} disabled={upgrading} className={btnPrimary}>
-                  {upgrading ? 'Redirigiendo…' : `Actualizar a Pro (${PRO_PRICE_USD_LABEL})`}
+                  {upgrading ? 'Redirigiendo…' : 'Actualizar a Pro'}
                 </button>
               ) : (
                 <button onClick={handleSave} disabled={saving || !profileLoaded} className={btnPrimary}>
