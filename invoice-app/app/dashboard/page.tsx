@@ -12,8 +12,7 @@ import { computeSubtotal, computeTotal } from '@/utils/invoiceCalculations';
 
 function invoiceTotal(invoice: StoredInvoice): number {
   const subtotal = computeSubtotal(invoice.items);
-  const taxEnabled = invoice.taxRate > 0;
-  return computeTotal(subtotal, taxEnabled, invoice.taxRate);
+  return computeTotal(subtotal, invoice.taxRate);
 }
 
 function DashboardContent() {

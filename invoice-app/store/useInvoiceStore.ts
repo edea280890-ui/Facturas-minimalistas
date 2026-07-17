@@ -1,5 +1,14 @@
 import { create } from 'zustand';
-import { Invoice, LineItem, CompanyDetails, ClientDetails, StoredInvoice, CurrencyCode } from '@/types/invoice';
+import {
+  Invoice,
+  LineItem,
+  CompanyDetails,
+  ClientDetails,
+  PaymentDetails,
+  StoredInvoice,
+  CurrencyCode,
+  createEmptyPaymentDetails,
+} from '@/types/invoice';
 import { supabase } from '@/utils/supabase/client';
 import { InvoiceRow, invoiceToRowPayload, rowToStoredInvoice } from '@/utils/supabase/mappers';
 import {
@@ -8,7 +17,6 @@ import {
   flattenValidationErrors,
   InvoiceValidationErrors,
 } from '@/utils/validateInvoice';
-import { getDefaultTaxForCurrency } from '@/utils/currencyConfig';
 import { computeSubtotal, computeTaxAmount, computeTotal } from '@/utils/invoiceCalculations';
 
 interface SaveResult {
@@ -25,7 +33,7 @@ interface FetchListResult {
 }
 
 const INVOICE_NUMBER_PATTERN = /^(.*?)(\d+)$/;
-const DEFAULT_INVOICE_PREFIX = 'FAC-';
+const DEFAULT_INVOICE_PREFIX = 'CI-';
 const DEFAULT_INVOICE_PADDING = 4;
 
 /** Borrador del email del emisor; mutación sin set() para no re-renderizar suscriptores. */
@@ -45,13 +53,13 @@ interface InvoiceState {
 
   updateCompany: (company: Partial<CompanyDetails>) => void;
   updateClient: (client: Partial<ClientDetails>) => void;
+  updatePaymentDetails: (details: Partial<PaymentDetails>) => void;
   setDraftCompanyEmail: (email: string) => void;
   setDraftClientEmail: (email: string) => void;
   setDraftTaxRate: (rate: number) => void;
   flushDraftFields: () => void;
   setCurrency: (currency: CurrencyCode) => void;
-  setTaxEnabled: (enabled: boolean) => void;
-  updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items'>>) => void;
+  updateInvoiceDetails: (details: Partial<Omit<Invoice, 'company' | 'client' | 'items' | 'paymentDetails'>>) => void;
   addItem: () => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, item: Partial<LineItem>) => void;
@@ -71,26 +79,22 @@ interface InvoiceState {
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 function buildInitialInvoice(): Invoice {
-  const currency: CurrencyCode = 'USD';
-  const { taxEnabled, taxRate } = getDefaultTaxForCurrency(currency);
   return {
     invoiceNumber: '',
     date: new Date().toISOString().split('T')[0],
     dueDate: new Date().toISOString().split('T')[0],
-    currency,
-    taxEnabled,
-    taxRate,
+    currency: 'USD',
+    taxRate: 0,
     company: { name: '', email: '', address: '', taxId: '' },
-    client: { name: '', email: '', address: '' },
+    client: { name: '', email: '', address: '', taxId: '' },
+    paymentDetails: createEmptyPaymentDetails(),
     items: [{ id: generateId(), description: '', quantity: 1, price: 0 }],
   };
 }
 
 function effectiveTaxRate(invoice: Invoice): number {
-  if (draftTaxRate !== undefined && invoice.taxEnabled) {
-    return draftTaxRate;
-  }
-  return invoice.taxEnabled ? invoice.taxRate : 0;
+  if (draftTaxRate !== undefined) return draftTaxRate;
+  return Number.isFinite(invoice.taxRate) ? invoice.taxRate : 0;
 }
 
 function nextInvoiceNumberFrom(lastNumber: string | null): string {
@@ -143,6 +147,25 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
     }));
   },
 
+  updateClient: (clientData) => {
+    if ('email' in clientData) {
+      draftClientEmail = undefined;
+    }
+    set((state) => ({
+      invoice: { ...state.invoice, client: { ...state.invoice.client, ...clientData } },
+      validationErrors: {},
+    }));
+  },
+
+  updatePaymentDetails: (details) =>
+    set((state) => ({
+      invoice: {
+        ...state.invoice,
+        paymentDetails: { ...state.invoice.paymentDetails, ...details },
+      },
+      validationErrors: {},
+    })),
+
   setDraftCompanyEmail: (email) => {
     draftCompanyEmail = email;
   },
@@ -157,7 +180,6 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
 
   flushDraftFields: () => {
     const state = get();
-    const updates: Partial<Invoice> = {};
     let company = state.invoice.company;
     let client = state.invoice.client;
     let taxRate = state.invoice.taxRate;
@@ -199,40 +221,8 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
   },
 
   setCurrency: (currency) => {
-    draftTaxRate = undefined;
-    const defaults = getDefaultTaxForCurrency(currency);
     set((state) => ({
-      invoice: {
-        ...state.invoice,
-        currency,
-        taxEnabled: defaults.taxEnabled,
-        taxRate: defaults.taxRate,
-      },
-      validationErrors: {},
-    }));
-  },
-
-  setTaxEnabled: (enabled) => {
-    draftTaxRate = undefined;
-    set((state) => {
-      const suggested = getDefaultTaxForCurrency(state.invoice.currency).taxRate;
-      return {
-        invoice: {
-          ...state.invoice,
-          taxEnabled: enabled,
-          taxRate: enabled ? (state.invoice.taxRate > 0 ? state.invoice.taxRate : suggested) : 0,
-        },
-        validationErrors: {},
-      };
-    });
-  },
-
-  updateClient: (clientData) => {
-    if ('email' in clientData) {
-      draftClientEmail = undefined;
-    }
-    set((state) => ({
-      invoice: { ...state.invoice, client: { ...state.invoice.client, ...clientData } },
+      invoice: { ...state.invoice, currency },
       validationErrors: {},
     }));
   },
@@ -272,13 +262,12 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
 
   getTaxAmount: () => {
     const invoice = get().invoice;
-    return computeTaxAmount(get().getSubtotal(), invoice.taxEnabled, effectiveTaxRate(invoice));
+    return computeTaxAmount(get().getSubtotal(), effectiveTaxRate(invoice));
   },
 
   getTotal: () => {
     const invoice = get().invoice;
-    const subtotal = get().getSubtotal();
-    return computeTotal(subtotal, invoice.taxEnabled, effectiveTaxRate(invoice));
+    return computeTotal(get().getSubtotal(), effectiveTaxRate(invoice));
   },
 
   newInvoice: () => {
@@ -401,8 +390,8 @@ export const useInvoiceStore = create<InvoiceState>((set, get) => ({
         client: stored.client,
         items: stored.items,
         currency: stored.currency,
-        taxEnabled: stored.taxRate > 0,
         taxRate: stored.taxRate,
+        paymentDetails: stored.paymentDetails,
       };
 
       draftCompanyEmail = undefined;

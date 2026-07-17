@@ -29,38 +29,49 @@ export const InvoiceDocument = ({
   taxAmount: number;
   total: number;
 }) => {
-  const showTax = data.taxEnabled && taxAmount > 0;
+  const showTax = taxAmount > 0;
+  const payment = data.paymentDetails;
+  const hasPaymentInfo = Boolean(
+    payment?.bankName ||
+      payment?.accountName ||
+      payment?.accountNumber ||
+      payment?.swiftCode ||
+      payment?.routingNumber ||
+      payment?.alternativePayment,
+  );
 
   return (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>FACTURA</Text>
-          <Text style={styles.text}>Nº: {data.invoiceNumber}</Text>
-          <Text style={styles.text}>Fecha: {data.date}</Text>
+          <Text style={styles.title}>COMMERCIAL INVOICE</Text>
+          <Text style={styles.text}>No: {data.invoiceNumber}</Text>
+          <Text style={styles.text}>Date: {data.date}</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           {data.company.logoUrl && (
             // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer's Image (PDF renderer) has no `alt` prop.
             <Image src={data.company.logoUrl} style={styles.logo} />
           )}
-          <Text style={styles.label}>De:</Text>
-          <Text style={{ fontFamily: 'Helvetica-Bold' }}>{data.company.name || 'Emisor'}</Text>
+          <Text style={styles.label}>From:</Text>
+          <Text style={{ fontFamily: 'Helvetica-Bold' }}>{data.company.name || 'Seller'}</Text>
           <Text style={styles.text}>{data.company.address}</Text>
+          {data.company.taxId ? <Text style={styles.text}>Tax ID: {data.company.taxId}</Text> : null}
         </View>
       </View>
       <View style={{ marginBottom: 20 }}>
-        <Text style={styles.label}>Facturar a:</Text>
-        <Text style={{ fontFamily: 'Helvetica-Bold' }}>{data.client.name || 'Cliente'}</Text>
+        <Text style={styles.label}>Bill to:</Text>
+        <Text style={{ fontFamily: 'Helvetica-Bold' }}>{data.client.name || 'Buyer'}</Text>
         <Text style={styles.text}>{data.client.address}</Text>
+        {data.client.taxId ? <Text style={styles.text}>Tax ID: {data.client.taxId}</Text> : null}
       </View>
       <View>
         <View style={styles.tableHeader}>
-          <Text style={styles.colDesc}>Descripción</Text>
-          <Text style={styles.colQty}>Cant.</Text>
-          <Text style={styles.colPrice}>Precio</Text>
-          <Text style={styles.colTotal}>Importe</Text>
+          <Text style={styles.colDesc}>Description</Text>
+          <Text style={styles.colQty}>Qty</Text>
+          <Text style={styles.colPrice}>Price</Text>
+          <Text style={styles.colTotal}>Amount</Text>
         </View>
         {data.items.map((item) => (
           <View key={item.id} style={styles.tableRow}>
@@ -75,12 +86,25 @@ export const InvoiceDocument = ({
         <View style={styles.totalRow}><Text>Subtotal:</Text><Text>{formatCurrency(subtotal, data.currency)}</Text></View>
         {showTax && (
           <View style={styles.totalRow}>
-            <Text>Impuestos ({data.taxRate}%):</Text>
+            <Text>Tax ({data.taxRate}%):</Text>
             <Text>{formatCurrency(taxAmount, data.currency)}</Text>
           </View>
         )}
         <View style={[styles.totalRow, styles.finalTotal]}><Text>Total:</Text><Text>{formatCurrency(total, data.currency)}</Text></View>
       </View>
+      {hasPaymentInfo && (
+        <View style={{ marginTop: 28 }}>
+          <Text style={styles.label}>Payment details</Text>
+          {payment.bankName ? <Text style={styles.text}>Bank: {payment.bankName}</Text> : null}
+          {payment.accountName ? <Text style={styles.text}>Account name: {payment.accountName}</Text> : null}
+          {payment.accountNumber ? <Text style={styles.text}>Account number: {payment.accountNumber}</Text> : null}
+          {payment.swiftCode ? <Text style={styles.text}>SWIFT/BIC: {payment.swiftCode}</Text> : null}
+          {payment.routingNumber ? <Text style={styles.text}>Routing: {payment.routingNumber}</Text> : null}
+          {payment.alternativePayment ? (
+            <Text style={styles.text}>Alternative: {payment.alternativePayment}</Text>
+          ) : null}
+        </View>
+      )}
     </Page>
   </Document>
   );

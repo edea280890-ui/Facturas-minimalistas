@@ -11,10 +11,10 @@ import { CurrencyTaxSection } from './CurrencyTaxSection';
 
 export default function InvoiceForm() {
   const {
-    invoice, updateCompany, updateClient, updateInvoiceDetails,
+    invoice, updateCompany, updateClient, updateInvoiceDetails, updatePaymentDetails,
     addItem, removeItem, updateItem, getSubtotal, getTotal,
     validationErrors, generateNextInvoiceNumber, setDraftCompanyEmail, setDraftClientEmail,
-    setCurrency, setTaxEnabled, setDraftTaxRate, getTaxAmount,
+    setCurrency, setDraftTaxRate, getTaxAmount,
   } = useInvoiceStore();
   const session = useAuthStore((s) => s.session);
   const showToast = useToastStore((s) => s.showToast);
@@ -70,7 +70,7 @@ export default function InvoiceForm() {
   const subtotal = getSubtotal();
   const taxAmount = getTaxAmount();
   const total = getTotal();
-  const showTaxBreakdown = invoice.taxEnabled && taxAmount > 0;
+  const showTaxBreakdown = taxAmount > 0;
 
   return (
     <div className="space-y-6">
@@ -155,8 +155,8 @@ export default function InvoiceForm() {
               {validationErrors.company?.address && <p className={errorTextClass}>{validationErrors.company.address}</p>}
             </div>
             <div>
-              <label className={labelClass}>ID Fiscal</label>
-              <input type="text" value={invoice.company.taxId} onChange={(e) => updateCompany({ taxId: e.target.value })} className={inputClass} />
+              <label className={labelClass}>Tax ID</label>
+              <input type="text" value={invoice.company.taxId} onChange={(e) => updateCompany({ taxId: e.target.value })} className={inputClass} placeholder="VAT / EIN / Tax ID" />
             </div>
             <div>
               <label className={labelClass}>Logo (opcional)</label>
@@ -218,6 +218,16 @@ export default function InvoiceForm() {
               />
               {validationErrors.client?.address && <p className={errorTextClass}>{validationErrors.client.address}</p>}
             </div>
+            <div>
+              <label className={labelClass}>Tax ID</label>
+              <input
+                type="text"
+                value={invoice.client.taxId}
+                onChange={(e) => updateClient({ taxId: e.target.value })}
+                className={inputClass}
+                placeholder="VAT / Tax ID"
+              />
+            </div>
           </div>
         </section>
       </div>
@@ -274,14 +284,73 @@ export default function InvoiceForm() {
         </div>
       </section>
 
+      <section className={cardClass}>
+        <h3 className="text-sm font-semibold text-slate-800 mb-4 pb-2 border-b border-slate-100">Payment details</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelClass}>Bank name</label>
+            <input
+              type="text"
+              value={invoice.paymentDetails.bankName ?? ''}
+              onChange={(e) => updatePaymentDetails({ bankName: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Account name</label>
+            <input
+              type="text"
+              value={invoice.paymentDetails.accountName ?? ''}
+              onChange={(e) => updatePaymentDetails({ accountName: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Account number</label>
+            <input
+              type="text"
+              value={invoice.paymentDetails.accountNumber ?? ''}
+              onChange={(e) => updatePaymentDetails({ accountNumber: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>SWIFT / BIC</label>
+            <input
+              type="text"
+              value={invoice.paymentDetails.swiftCode ?? ''}
+              onChange={(e) => updatePaymentDetails({ swiftCode: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Routing number</label>
+            <input
+              type="text"
+              value={invoice.paymentDetails.routingNumber ?? ''}
+              onChange={(e) => updatePaymentDetails({ routingNumber: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Alternative payment</label>
+            <input
+              type="text"
+              value={invoice.paymentDetails.alternativePayment ?? ''}
+              onChange={(e) => updatePaymentDetails({ alternativePayment: e.target.value })}
+              className={inputClass}
+              placeholder="Wise / Payoneer / etc."
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="flex flex-col sm:flex-row justify-between gap-6">
         <div className="w-full sm:w-1/2">
           <CurrencyTaxSection
             currency={invoice.currency}
-            taxEnabled={invoice.taxEnabled}
             taxRate={invoice.taxRate}
             onCurrencyChange={setCurrency}
-            onTaxEnabledChange={setTaxEnabled}
             onTaxRateDraft={setDraftTaxRate}
             onTaxRateCommit={(rate) => updateInvoiceDetails({ taxRate: rate })}
             inputClass={inputClass}

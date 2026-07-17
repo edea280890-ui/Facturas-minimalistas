@@ -100,11 +100,16 @@ create table if not exists public.invoices (
   company        jsonb not null default '{}'::jsonb,
   client         jsonb not null default '{}'::jsonb,
   items          jsonb not null default '[]'::jsonb,
-  currency       text not null default 'USD',
-  tax_rate       numeric not null default 0,
-  created_at     timestamptz not null default now(),
-  updated_at     timestamptz not null default now()
+  currency         text not null default 'USD',
+  tax_rate         numeric not null default 0,
+  payment_details  jsonb not null default '{}'::jsonb,
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now()
 );
+
+-- Migración idempotente para entornos que ya tenían `invoices` sin payment_details.
+alter table public.invoices
+  add column if not exists payment_details jsonb not null default '{}'::jsonb;
 
 -- Índice para acelerar las consultas por usuario.
 create index if not exists invoices_user_id_idx on public.invoices (user_id);

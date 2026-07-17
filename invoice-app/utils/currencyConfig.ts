@@ -4,19 +4,18 @@ export interface CurrencyOption {
   code: CurrencyCode;
   symbol: string;
   label: string;
-  taxEnabledByDefault: boolean;
-  suggestedTaxRate: number;
 }
 
+/** Catálogo de monedas para Commercial Invoices. Sin sugerencias fiscales por país. */
 export const CURRENCY_OPTIONS: CurrencyOption[] = [
-  { code: 'USD', symbol: '$', label: 'Dólar estadounidense', taxEnabledByDefault: false, suggestedTaxRate: 0 },
-  { code: 'EUR', symbol: '€', label: 'Euro', taxEnabledByDefault: true, suggestedTaxRate: 21 },
-  { code: 'GBP', symbol: '£', label: 'Libra esterlina', taxEnabledByDefault: true, suggestedTaxRate: 20 },
-  { code: 'MXN', symbol: '$', label: 'Peso mexicano', taxEnabledByDefault: true, suggestedTaxRate: 16 },
-  { code: 'ARS', symbol: '$', label: 'Peso argentino', taxEnabledByDefault: true, suggestedTaxRate: 21 },
-  { code: 'COP', symbol: '$', label: 'Peso colombiano', taxEnabledByDefault: true, suggestedTaxRate: 19 },
-  { code: 'CLP', symbol: '$', label: 'Peso chileno', taxEnabledByDefault: true, suggestedTaxRate: 19 },
-  { code: 'PEN', symbol: 'S/', label: 'Sol peruano', taxEnabledByDefault: true, suggestedTaxRate: 18 },
+  { code: 'USD', symbol: '$', label: 'US Dollar' },
+  { code: 'EUR', symbol: '€', label: 'Euro' },
+  { code: 'GBP', symbol: '£', label: 'British Pound' },
+  { code: 'MXN', symbol: '$', label: 'Mexican Peso' },
+  { code: 'ARS', symbol: '$', label: 'Argentine Peso' },
+  { code: 'COP', symbol: '$', label: 'Colombian Peso' },
+  { code: 'CLP', symbol: '$', label: 'Chilean Peso' },
+  { code: 'PEN', symbol: 'S/', label: 'Peruvian Sol' },
 ];
 
 export function getCurrencyOption(code: string): CurrencyOption {
@@ -27,14 +26,6 @@ export function getCurrencyOption(code: string): CurrencyOption {
 
 export function formatCurrencySelectLabel(option: CurrencyOption): string {
   return `${option.code} (${option.symbol}) — ${option.label}`;
-}
-
-export function getDefaultTaxForCurrency(code: string): { taxEnabled: boolean; taxRate: number } {
-  const option = getCurrencyOption(code);
-  return {
-    taxEnabled: option.taxEnabledByDefault,
-    taxRate: option.suggestedTaxRate,
-  };
 }
 
 /** Garantiza que solo se usen códigos soportados por Intl y el selector. */
