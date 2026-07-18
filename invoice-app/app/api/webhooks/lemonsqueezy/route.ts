@@ -127,6 +127,11 @@ export async function POST(request: Request) {
       );
     }
 
+    log('STEP 6 — Estado de orden verificado', {
+      orderStatus: orderStatus ?? 'paid',
+      proceeding: true,
+    });
+
     const userId = extractUserIdFromCustomData(body.meta?.custom_data);
     log('STEP 7 — Extracción de user_id', {
       userId: userId ?? null,
