@@ -34,7 +34,28 @@ Ese link se abre desde el botón **Adquirir Licencia aquí** del modal Paywall.
 
 ---
 
-## Netlify Drop
+## Dónde está en GitHub
+
+El archivo vive en el repo público:
+
+- App: [`calculadora-freelance-pro/index.html`](https://github.com/edea280890-ui/Facturas-minimalistas/blob/cursor/calculadora-dolar-frontend-6b13/calculadora-freelance-pro/index.html)
+- Rama Pages: `gh-pages` (HTML en la raíz del branch)
+
+**Importante:** links tipo jsDelivr / `raw.githubusercontent` sirven el archivo como `text/plain` (el navegador muestra código, no la app). Hay que hostearlo como HTML.
+
+### GitHub Pages (permanente)
+
+1. En GitHub → **Settings → Pages**.
+2. Source: Deploy from a branch → `gh-pages` → folder `/` → Save.
+3. URL esperada: `https://edea280890-ui.github.io/Facturas-minimalistas/`
+
+### Vercel (mismo proyecto)
+
+Tras mergear el bypass de mantenimiento, la app queda en:
+
+`https://facturas-minimalistas-umber.vercel.app/calculadora/`
+
+### Netlify Drop
 
 1. Cambiá `CLAVE_SECRETA_VENTA` y `LINK_MERCADO_PAGO`.
 2. Arrastrá esta carpeta (o solo `index.html`) a [Netlify Drop](https://app.netlify.com/drop).
