@@ -1,0 +1,33 @@
+{
+  "auditedCommitHint": "2cf4fe4",
+  "pass": 5,
+  "fail": 0,
+  "findings": [
+    {
+      "id": "T5-CASE",
+      "status": "PASS",
+      "detail": "Acepta variaciones: \"PRO-2026\", \"pro-2026\", \"Pro-2026\", \"pRo-2026\", \"  PRO-2026  \", \"  pro-2026\""
+    },
+    {
+      "id": "T5-REJECT-BAD",
+      "status": "PASS",
+      "detail": "Rechaza llaves inválidas (6) con error visible"
+    },
+    {
+      "id": "T5-UNLOCK-DOWNLOAD",
+      "status": "PASS",
+      "detail": "Modal cerrado + download \"voucher-usd-20260718.png\" en 124ms (trace 123ms)"
+    },
+    {
+      "id": "T5-PERSIST",
+      "status": "PASS",
+      "detail": "Tras reload, licencia recordada; ambos botones exportan sin modal"
+    },
+    {
+      "id": "T5-CANCEL-SAFE",
+      "status": "PASS",
+      "detail": "Cancel/X/Esc/backdrop cierran sin licencia; cálculo sigue (total=$ 250.000,00)"
+    }
+  ],
+  "readyForLaunch": true
+}

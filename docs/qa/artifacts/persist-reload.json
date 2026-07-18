@@ -1,0 +1,13 @@
+{
+  "before": "PRO-2026",
+  "after": {
+    "license": "PRO-2026",
+    "modalOpen": false,
+    "downloaded": true,
+    "download": "voucher-usd-20260718.png"
+  },
+  "secondary": {
+    "modalOpen": false,
+    "downloaded": true
+  }
+}
