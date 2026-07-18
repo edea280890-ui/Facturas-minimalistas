@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import Toaster from "@/components/ui/Toaster";
 import ProfileSync from "@/components/providers/ProfileSync";
 import SupabaseConfigBanner from "@/components/providers/SupabaseConfigBanner";
-import Footer from "@/components/layout/Footer";
+import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import { PRODUCT_NAME, PRODUCT_TITLE } from "@/utils/brand";
 import "./globals.css";
 
@@ -37,7 +37,7 @@ export default function RootLayout({
         <SupabaseConfigBanner />
         <ProfileSync />
         <div className="flex-1">{children}</div>
-        <Footer />
+        <ConditionalFooter />
         <Toaster />
         <Analytics /> {/* Componente de Analytics añadido aquí */}
       </body>
