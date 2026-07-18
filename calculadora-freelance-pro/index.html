@@ -24,7 +24,7 @@
         }
         main > section { min-width: 0; }
 
-        /* Voucher: CSS básico export-safe */
+        /* Voucher: CSS básico export-safe — ÚNICO nodo capturado por html2canvas */
         #voucher {
             width: min(360px, 100%);
             box-sizing: border-box;
@@ -37,11 +37,51 @@
         .voucher-accent { border-top: 4px solid #0F6E56; }
         .v-text-wrap { overflow-wrap: anywhere; }
 
+        /* Footer legal: fuera de #voucher, nunca se exporta */
+        #legal-footer {
+            border-top: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        #legal-footer button {
+            color: #94A3B8;
+            font-size: 0.75rem;
+            letter-spacing: 0.02em;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            transition: color 120ms ease;
+        }
+        #legal-footer button:hover {
+            color: #64748B;
+            text-decoration: underline;
+        }
+
+        .legal-modal-body {
+            max-height: min(60vh, 420px);
+            overflow-y: auto;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #475569;
+        }
+        .legal-modal-body h4 {
+            color: #0B1220;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0 0 0.75rem 0;
+        }
+        .legal-modal-body p { margin: 0 0 0.75rem 0; }
+        .legal-modal-body ul {
+            margin: 0 0 0.75rem 1.1rem;
+            list-style: disc;
+        }
+        .legal-modal-body li { margin-bottom: 0.5rem; }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24 md:pb-0">
+<body class="min-h-screen flex flex-col">
 
     <!-- =====================================================================
          ZONA · Header
@@ -75,19 +115,30 @@
                     </div>
                     <div class="w-1/2 min-w-0">
                         <label class="block text-sm font-medium text-gray-700 mb-1" for="in-moneda">Moneda</label>
-                        <select id="in-moneda" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none" onchange="App.syncPreview()">
-                            <option value="USD">USD Dólares</option>
+                        <select id="in-moneda" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none" onchange="App.onMonedaChange()">
+                            <option value="USD" selected>USD Dólares</option>
                             <option value="EUR">EUR Euros</option>
                         </select>
                     </div>
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="in-casa">Cotización API (DolarAPI)</label>
+                    <select id="in-casa" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none" onchange="App.fetchCotizacion()">
+                        <option value="blue" selected>Blue</option>
+                        <option value="oficial">Oficial</option>
+                        <option value="bolsa">Bolsa</option>
+                        <option value="contadoconliqui">CCL</option>
+                        <option value="mayorista">Mayorista</option>
+                        <option value="tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+                <div>
                     <div class="flex justify-between items-end mb-1 gap-2">
-                        <label class="block text-sm font-medium text-gray-700" for="in-tc">Cotización (Tipo de Cambio)</label>
+                        <label class="block text-sm font-medium text-gray-700" for="in-tc">Cotización (Tipo de Cambio → ARS)</label>
                         <span id="api-status" class="text-xs text-[#0F6E56] animate-pulse shrink-0">Obteniendo API...</span>
                     </div>
                     <input type="number" id="in-tc" value="1000" min="0" step="0.01" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none bg-yellow-50" oninput="App.syncPreview()">
-                    <p class="mt-1 text-xs text-gray-500">Fuente: DolarAPI Blue (venta). Si falla a los 3s → modo manual.</p>
+                    <p id="api-help" class="mt-1 text-xs text-gray-500">Fuente: DolarAPI (venta). Timeout 3s → modo manual.</p>
                 </div>
             </div>
             <div class="mt-8 p-4 bg-[#F4F7FA] rounded-lg border border-[#D8E0EA]">
@@ -102,6 +153,7 @@
         <section class="w-full md:w-7/12 flex flex-col items-center justify-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-4 md:p-8 min-w-0">
             <h2 class="text-sm font-medium text-gray-500 mb-4 tracking-widest uppercase">Previsualización</h2>
 
+            <!-- ÚNICO nodo exportable — no incluir footer ni botones aquí -->
             <div id="voucher" class="voucher-accent shadow-sm p-6 relative">
                 <div class="text-center mb-6 border-b border-gray-200 pb-4">
                     <h3 class="text-xl font-bold text-gray-800 tracking-tight">PRESUPUESTO</h3>
@@ -134,6 +186,20 @@
     </main>
 
     <!-- =====================================================================
+         FOOTER LEGAL (fuera de #voucher — NO se exporta)
+         ===================================================================== -->
+    <footer id="legal-footer" class="mt-auto py-6 px-4">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-1">
+            <button type="button" onclick="App.openLegalModal('aviso')">Aviso Legal</button>
+            <span class="hidden sm:inline text-slate-300 text-xs select-none" aria-hidden="true">·</span>
+            <button type="button" onclick="App.openLegalModal('terminos')">Términos</button>
+            <span class="hidden sm:inline text-slate-300 text-xs select-none" aria-hidden="true">·</span>
+            <button type="button" onclick="App.openLegalModal('privacidad')">Privacidad</button>
+        </div>
+        <p class="mt-3 text-center text-[11px] text-slate-400">Calculadora Freelance PRO · Herramienta de asistencia</p>
+    </footer>
+
+    <!-- =====================================================================
          T5 · Modal Paywall
          ===================================================================== -->
     <div id="paywall-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true" aria-labelledby="paywall-title">
@@ -161,6 +227,55 @@
         </div>
     </div>
 
+    <!-- =====================================================================
+         Modales legales
+         ===================================================================== -->
+    <div id="modal-aviso" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true" aria-labelledby="aviso-title">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 id="aviso-title" class="text-xl font-bold mb-4 text-[#0B1220]">Aviso Legal</h3>
+            <div class="legal-modal-body">
+                <h4>Aviso Legal y Limitación de Responsabilidad</h4>
+                <p>Esta calculadora es una herramienta de asistencia para cálculos rápidos. Las cotizaciones de moneda obtenidas a través de la API integrada son referenciales y pueden sufrir demoras o errores técnicos. La capacidad de ingreso manual de cotizaciones es una funcionalidad provista para que el usuario utilice su propio criterio financiero.</p>
+                <p>El usuario es el único responsable de verificar la exactitud de los valores ingresados. Bajo ninguna circunstancia el desarrollador será responsable por errores de cálculo, diferencias cambiarias, pérdidas financieras o decisiones comerciales derivadas del uso de esta herramienta. Esta aplicación no constituye asesoramiento financiero, contable o legal.</p>
+            </div>
+            <div class="mt-5 flex justify-end">
+                <button type="button" onclick="App.closeLegalModal('aviso')" class="px-6 py-2 bg-[#0B1220] text-white rounded hover:bg-gray-800">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-terminos" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true" aria-labelledby="terminos-title">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 id="terminos-title" class="text-xl font-bold mb-4 text-[#0B1220]">Términos</h3>
+            <div class="legal-modal-body">
+                <h4>Términos de Servicio (Resumen)</h4>
+                <ul>
+                    <li><strong>Licencia de Uso:</strong> La compra otorga una licencia de uso personal, ilimitada y no transferible para acceder a las funciones premium de la aplicación.</li>
+                    <li><strong>Garantía:</strong> El software se entrega “tal cual” (as-is). No garantizamos disponibilidad ininterrumpida de los servicios de terceros (APIs de cambio de divisas).</li>
+                    <li><strong>Política de Reembolso:</strong> Dado que este es un producto de software digital con entrega inmediata, no se realizan reembolsos una vez entregada la llave de acceso.</li>
+                    <li><strong>Propiedad:</strong> El código y diseño son propiedad exclusiva del desarrollador. Queda prohibida su reventa o distribución.</li>
+                </ul>
+            </div>
+            <div class="mt-5 flex justify-end">
+                <button type="button" onclick="App.closeLegalModal('terminos')" class="px-6 py-2 bg-[#0B1220] text-white rounded hover:bg-gray-800">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-privacidad" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true" aria-labelledby="privacidad-title">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 id="privacidad-title" class="text-xl font-bold mb-4 text-[#0B1220]">Privacidad</h3>
+            <div class="legal-modal-body">
+                <h4>Política de Privacidad</h4>
+                <p>En Calculadora Freelance PRO, valoramos tu privacidad. Esta aplicación no procesa, almacena, ni transmite tus datos financieros, conceptos de presupuesto o datos de clientes a servidores externos.</p>
+                <p>Toda la información que ingresas se mantiene de forma local en tu navegador (LocalStorage). Si borras el historial de tu navegador, esa información se eliminará permanentemente. No somos dueños de tus datos, y nunca lo seremos.</p>
+            </div>
+            <div class="mt-5 flex justify-end">
+                <button type="button" onclick="App.closeLegalModal('privacidad')" class="px-6 py-2 bg-[#0B1220] text-white rounded hover:bg-gray-800">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="fixed top-4 right-4 z-[60] flex flex-col gap-2"></div>
 
     <script>
@@ -173,18 +288,19 @@
 
         /**
          * 🔐 CLAVE DE VENTA — buscá: CLAVE_SECRETA_VENTA
-         * Valor de prueba QA: 'PRO-2026'
          * Cambiala por tu clave definitiva antes de Netlify Drop.
-         *
-         * AVISO: está en el cliente (HTML visible). Es fricción comercial del MVP,
-         * no seguridad fuerte. A escala → validación en backend.
          */
-        const CLAVE_SECRETA_VENTA = 'PRO-2026';
+        const CLAVE_SECRETA_VENTA = 'Siria-2026';
 
         const LICENSE_STORAGE_KEY = 'calculadora_usd_license';
-        const API_URL = 'https://dolarapi.com/v1/dolares/blue';
+        const API_BASE = 'https://dolarapi.com/v1/dolares';
         const API_TIMEOUT_MS = 3000;
         const PREMIUM_PRICE_ARS = '$ 25.000 ARS';
+        const LEGAL_MODAL_IDS = {
+            aviso: 'modal-aviso',
+            terminos: 'modal-terminos',
+            privacidad: 'modal-privacidad'
+        };
 
         /* ====================================================================
          * MÓDULO · UI helpers
@@ -200,20 +316,39 @@
         }
 
         /* ====================================================================
-         * MÓDULO · Cotización (DolarAPI + fallback 3s)
+         * MÓDULO · Cotización (DolarAPI + menú de casas + fallback 3s)
          * ==================================================================== */
         async function fetchCotizacion() {
             const statusEl = document.getElementById('api-status');
+            const helpEl = document.getElementById('api-help');
+            const casa = document.getElementById('in-casa').value || 'blue';
+            const moneda = document.getElementById('in-moneda').value || 'USD';
+
+            statusEl.innerText = 'Obteniendo API...';
+            statusEl.className = 'text-xs text-[#0F6E56] animate-pulse shrink-0';
+
+            // DolarAPI cotiza USD→ARS. Si la moneda base es EUR, pedimos ingreso manual.
+            if (moneda === 'EUR') {
+                statusEl.innerText = 'Manual · EUR';
+                statusEl.className = 'text-xs text-amber-600 shrink-0';
+                helpEl.textContent = 'EUR: ingresá manualmente el tipo de cambio EUR→ARS (la API es USD).';
+                syncPreview();
+                return;
+            }
+
+            helpEl.textContent = 'Fuente: DolarAPI /' + casa + ' (venta). Timeout 3s → modo manual.';
+
             const controller = new AbortController();
             const timeoutId = setTimeout(function () { controller.abort(); }, API_TIMEOUT_MS);
             try {
-                const response = await fetch(API_URL, { signal: controller.signal });
+                const response = await fetch(API_BASE + '/' + encodeURIComponent(casa), { signal: controller.signal });
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
                 const venta = Number(data && data.venta);
                 if (!Number.isFinite(venta) || venta <= 0) throw new Error('Cotización inválida');
                 document.getElementById('in-tc').value = String(venta);
-                statusEl.innerText = 'API Blue · OK';
+                const nombre = (data && (data.nombre || data.casa)) || casa;
+                statusEl.innerText = 'API ' + nombre + ' · OK';
                 statusEl.className = 'text-xs text-[#0F6E56] shrink-0';
                 syncPreview();
             } catch (e) {
@@ -223,6 +358,11 @@
             } finally {
                 clearTimeout(timeoutId);
             }
+        }
+
+        function onMonedaChange() {
+            syncPreview();
+            fetchCotizacion();
         }
 
         /* ====================================================================
@@ -285,19 +425,31 @@
         }
 
         /* ====================================================================
-         * MÓDULO · Export PNG (html2canvas)
+         * MÓDULO · Export PNG — SOLO #voucher (footer legal excluido)
          * ==================================================================== */
         function processExport() {
             const voucherElement = document.getElementById('voucher');
-            if (typeof html2canvas !== 'function') {
+            if (!voucherElement || typeof html2canvas !== 'function') {
                 showToast('Exportación no disponible', true);
                 return;
             }
+
+            // Captura estricta del nodo #voucher. El footer #legal-footer y los
+            // botones de export/modales están fuera de este elemento a propósito.
             html2canvas(voucherElement, {
                 scale: 2,
                 backgroundColor: '#FFFFFF',
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                // Cinturón de seguridad: ignorar cualquier nodo legal si existiera
+                ignoreElements: function (el) {
+                    if (!el || !el.id) return false;
+                    return el.id === 'legal-footer' ||
+                        el.id.indexOf('modal-') === 0 ||
+                        el.id === 'paywall-modal' ||
+                        el.id === 'download-modal' ||
+                        el.id === 'toast-container';
+                }
             }).then(function (canvas) {
                 const imgData = canvas.toDataURL('image/png');
                 document.getElementById('rendered-image').src = imgData;
@@ -316,6 +468,27 @@
         }
 
         /* ====================================================================
+         * MÓDULO · Modales legales
+         * ==================================================================== */
+        function openLegalModal(key) {
+            const id = LEGAL_MODAL_IDS[key];
+            if (!id) return;
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeLegalModal(key) {
+            const id = LEGAL_MODAL_IDS[key];
+            if (!id) return;
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function closeAllLegalModals() {
+            Object.keys(LEGAL_MODAL_IDS).forEach(function (key) {
+                closeLegalModal(key);
+            });
+        }
+
+        /* ====================================================================
          * BOOT
          * ==================================================================== */
         document.getElementById('v-fecha').innerText = 'Fecha: ' + new Date().toLocaleDateString('es-AR');
@@ -326,17 +499,28 @@
             if (e.key === 'Escape') {
                 closeModal();
                 closeDownloadModal();
+                closeAllLegalModals();
             }
         });
 
-        // API pública para onclick="" del HTML (fácil de mantener / escalar)
+        // Cerrar modales legales al clickear el backdrop
+        Object.keys(LEGAL_MODAL_IDS).forEach(function (key) {
+            const el = document.getElementById(LEGAL_MODAL_IDS[key]);
+            el.addEventListener('click', function (evt) {
+                if (evt.target === el) closeLegalModal(key);
+            });
+        });
+
         window.App = {
             syncPreview: syncPreview,
+            fetchCotizacion: fetchCotizacion,
+            onMonedaChange: onMonedaChange,
             handleExportClick: handleExportClick,
             validateLicense: validateLicense,
             closeModal: closeModal,
             closeDownloadModal: closeDownloadModal,
-            // expuesto por si más adelante agregás settings UI
+            openLegalModal: openLegalModal,
+            closeLegalModal: closeLegalModal,
             config: {
                 get clave() { return CLAVE_SECRETA_VENTA; },
                 price: PREMIUM_PRICE_ARS,
