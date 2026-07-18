@@ -37,7 +37,7 @@ Storage: `localStorage['calculadora_usd_license']`.
 | Tailwind | `cdn.tailwindcss.com` |
 | Fonts | `fonts.googleapis.com` |
 | html2canvas | `cdnjs.cloudflare.com/.../html2canvas.min.js` |
-| Cotización | `dolarapi.com/v1/dolares/blue` |
+| Cotización global | `api.exchangerate-api.com/v4/latest/{BASE}` → ARS |
 
 No hay links relativos rotos.
 
