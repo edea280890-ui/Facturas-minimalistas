@@ -5,6 +5,7 @@ import { getSupabaseAdminClient } from '@/utils/supabase/admin';
 import { upsertSubscriber } from '@/utils/subscribers';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const LOG_PREFIX = '[lemonsqueezy]';
 
@@ -42,8 +43,45 @@ interface GrantPremiumResult {
   details?: string;
 }
 
+/**
+ * GET /api/webhooks/lemonsqueezy
+ *
+ * Handshake / health check — confirma que el endpoint es público y alcanzable
+ * desde Vercel (curl, navegador, o “Send test” de diagnóstico).
+ */
+export async function GET() {
+  const requestId = randomUUID().slice(0, 8);
+  const envReady = {
+    LEMONSQUEEZY_WEBHOOK_SECRET: Boolean(process.env.LEMONSQUEEZY_WEBHOOK_SECRET),
+    NEXT_PUBLIC_SUPABASE_URL: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    SUPABASE_SERVICE_ROLE_KEY: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+  };
+
+  console.log(`${LOG_PREFIX} [${requestId}] HANDSHAKE GET — endpoint alcanzable`, JSON.stringify(envReady));
+
+  return NextResponse.json(
+    {
+      ok: true,
+      handshake: true,
+      endpoint: '/api/webhooks/lemonsqueezy',
+      methods: ['GET', 'POST'],
+      requestId,
+      envReady,
+      hint: 'Lemon Squeezy debe enviar POST con header x-signature. Evento: order_created.',
+    },
+    { status: 200 },
+  );
+}
+
 export async function POST(request: Request) {
   const requestId = randomUUID().slice(0, 8);
+
+  // Log síncrono inmediato — si esto no aparece en Vercel, la petición no llegó al Route Handler.
+  console.log(
+    `${LOG_PREFIX} [${requestId}] HANDSHAKE POST — función invocada`,
+    JSON.stringify({ at: new Date().toISOString(), url: request.url }),
+  );
+
   const log = (step: string, detail?: Record<string, unknown>) => {
     if (detail) {
       console.log(`${LOG_PREFIX} [${requestId}] ${step}`, JSON.stringify(detail));
