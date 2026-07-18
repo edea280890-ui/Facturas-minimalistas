@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0B1220">
-    <meta name="description" content="Calculadora Freelance PRO — cotizá en USD/EUR, indexá al dólar y exportá vouchers.">
+    <meta name="description" content="Calculadora Freelance PRO — conversión global a ARS y vouchers exportables.">
     <meta name="application-name" content="Calculadora Freelance PRO">
     <title>Calculadora Freelance PRO</title>
 
@@ -89,7 +89,7 @@
     <header class="bg-[#0B1220] text-white p-4 shadow-md">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <h1 class="font-bold text-lg tracking-wide">CalcuPRO Freelance</h1>
-            <span class="text-xs text-slate-300 hidden sm:inline">Indexado al dólar · Voucher PNG</span>
+            <span class="text-xs text-slate-300 hidden sm:inline">Conversión global → ARS · Voucher PNG</span>
         </div>
     </header>
 
@@ -116,29 +116,27 @@
                     <div class="w-1/2 min-w-0">
                         <label class="block text-sm font-medium text-gray-700 mb-1" for="in-moneda">Moneda</label>
                         <select id="in-moneda" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none" onchange="App.onMonedaChange()">
-                            <option value="USD" selected>USD Dólares</option>
-                            <option value="EUR">EUR Euros</option>
+                            <option value="USD" selected>USD — Dólar estadounidense</option>
+                            <option value="EUR">EUR — Euro</option>
+                            <option value="GBP">GBP — Libra esterlina</option>
+                            <option value="JPY">JPY — Yen japonés</option>
+                            <option value="BRL">BRL — Real brasileño</option>
+                            <option value="CLP">CLP — Peso chileno</option>
+                            <option value="MXN">MXN — Peso mexicano</option>
+                            <option value="UYU">UYU — Peso uruguayo</option>
+                            <option value="CAD">CAD — Dólar canadiense</option>
+                            <option value="CNY">CNY — Yuan chino</option>
+                            <option value="ARS">ARS — Peso argentino</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="in-casa">Cotización API (DolarAPI)</label>
-                    <select id="in-casa" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none" onchange="App.fetchCotizacion()">
-                        <option value="blue" selected>Blue</option>
-                        <option value="oficial">Oficial</option>
-                        <option value="bolsa">Bolsa</option>
-                        <option value="contadoconliqui">CCL</option>
-                        <option value="mayorista">Mayorista</option>
-                        <option value="tarjeta">Tarjeta</option>
-                    </select>
-                </div>
-                <div>
                     <div class="flex justify-between items-end mb-1 gap-2">
-                        <label class="block text-sm font-medium text-gray-700" for="in-tc">Cotización (Tipo de Cambio → ARS)</label>
+                        <label class="block text-sm font-medium text-gray-700" for="in-tc">Tipo de Cambio → ARS</label>
                         <span id="api-status" class="text-xs text-[#0F6E56] animate-pulse shrink-0">Obteniendo API...</span>
                     </div>
-                    <input type="number" id="in-tc" value="1000" min="0" step="0.01" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none bg-yellow-50" oninput="App.syncPreview()">
-                    <p id="api-help" class="mt-1 text-xs text-gray-500">Fuente: DolarAPI (venta). Timeout 3s → modo manual.</p>
+                    <input type="number" id="in-tc" value="1000" min="0" step="any" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#0F6E56] focus:outline-none bg-yellow-50" oninput="App.onTipoCambioInput()">
+                    <p id="api-help" class="mt-1 text-xs text-gray-500">Cotización global referencial. Siempre editable (ej. Blue vs Oficial).</p>
                 </div>
             </div>
             <div class="mt-8 p-4 bg-[#F4F7FA] rounded-lg border border-[#D8E0EA]">
@@ -293,14 +291,23 @@
         const CLAVE_SECRETA_VENTA = 'Siria-2026';
 
         const LICENSE_STORAGE_KEY = 'calculadora_usd_license';
-        const API_BASE = 'https://dolarapi.com/v1/dolares';
-        const API_TIMEOUT_MS = 3000;
+        /**
+         * API global de tipo de cambio (soporta ARS; Frankfurter no incluye ARS).
+         * Endpoint: GET /v4/latest/{BASE} → rates.ARS
+         */
+        const API_BASE = 'https://api.exchangerate-api.com/v4/latest';
+        const API_TIMEOUT_MS = 4000;
         const PREMIUM_PRICE_ARS = '$ 25.000 ARS';
+        const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'BRL', 'CLP', 'MXN', 'UYU', 'CAD', 'CNY', 'ARS'];
         const LEGAL_MODAL_IDS = {
             aviso: 'modal-aviso',
             terminos: 'modal-terminos',
             privacidad: 'modal-privacidad'
         };
+
+        /** 'api' | 'manual' — el input TC nunca se deshabilita */
+        let rateSource = 'api';
+        let fetchSeq = 0;
 
         /* ====================================================================
          * MÓDULO · UI helpers
@@ -315,54 +322,98 @@
             setTimeout(function () { el.remove(); }, 2200);
         }
 
-        /* ====================================================================
-         * MÓDULO · Cotización (DolarAPI + menú de casas + fallback 3s)
-         * ==================================================================== */
-        async function fetchCotizacion() {
+        function setApiStatus(text, tone) {
             const statusEl = document.getElementById('api-status');
             const helpEl = document.getElementById('api-help');
-            const casa = document.getElementById('in-casa').value || 'blue';
-            const moneda = document.getElementById('in-moneda').value || 'USD';
+            const tones = {
+                ok: 'text-xs text-[#0F6E56] shrink-0',
+                loading: 'text-xs text-[#0F6E56] animate-pulse shrink-0',
+                warn: 'text-xs text-amber-600 shrink-0',
+                muted: 'text-xs text-slate-500 shrink-0'
+            };
+            statusEl.innerText = text;
+            statusEl.className = tones[tone] || tones.muted;
+            if (tone === 'warn') {
+                helpEl.textContent = 'Cotización manual requerida. Podés ingresar Blue, Oficial u otra tasa.';
+            } else if (tone === 'ok') {
+                helpEl.textContent = 'Cotización global referencial. Siempre editable (ej. Blue vs Oficial).';
+            }
+        }
 
-            statusEl.innerText = 'Obteniendo API...';
-            statusEl.className = 'text-xs text-[#0F6E56] animate-pulse shrink-0';
+        /* ====================================================================
+         * MÓDULO · Cotización global (BASE → ARS)
+         * ==================================================================== */
+        async function fetchCotizacion() {
+            const moneda = (document.getElementById('in-moneda').value || 'USD').toUpperCase();
+            const tcInput = document.getElementById('in-tc');
+            // Regla de oro: el TC permanece editable siempre
+            tcInput.disabled = false;
 
-            // DolarAPI cotiza USD→ARS. Si la moneda base es EUR, pedimos ingreso manual.
-            if (moneda === 'EUR') {
-                statusEl.innerText = 'Manual · EUR';
-                statusEl.className = 'text-xs text-amber-600 shrink-0';
-                helpEl.textContent = 'EUR: ingresá manualmente el tipo de cambio EUR→ARS (la API es USD).';
+            if (SUPPORTED_CURRENCIES.indexOf(moneda) === -1) {
+                rateSource = 'manual';
+                setApiStatus('Cotización manual requerida', 'warn');
                 syncPreview();
                 return;
             }
 
-            helpEl.textContent = 'Fuente: DolarAPI /' + casa + ' (venta). Timeout 3s → modo manual.';
+            // ARS → ARS = 1 (sin red)
+            if (moneda === 'ARS') {
+                rateSource = 'api';
+                tcInput.value = '1';
+                setApiStatus('ARS · 1:1', 'ok');
+                syncPreview();
+                return;
+            }
+
+            const seq = ++fetchSeq;
+            rateSource = 'api';
+            setApiStatus('Obteniendo API...', 'loading');
 
             const controller = new AbortController();
             const timeoutId = setTimeout(function () { controller.abort(); }, API_TIMEOUT_MS);
+
             try {
-                const response = await fetch(API_BASE + '/' + encodeURIComponent(casa), { signal: controller.signal });
+                const response = await fetch(API_BASE + '/' + encodeURIComponent(moneda), {
+                    signal: controller.signal,
+                    headers: { Accept: 'application/json' }
+                });
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
-                const venta = Number(data && data.venta);
-                if (!Number.isFinite(venta) || venta <= 0) throw new Error('Cotización inválida');
-                document.getElementById('in-tc').value = String(venta);
-                const nombre = (data && (data.nombre || data.casa)) || casa;
-                statusEl.innerText = 'API ' + nombre + ' · OK';
-                statusEl.className = 'text-xs text-[#0F6E56] shrink-0';
-                syncPreview();
+                const rate = Number(data && data.rates && data.rates.ARS);
+                if (!Number.isFinite(rate) || rate <= 0) throw new Error('Sin tasa ARS');
+
+                // Ignorar respuestas viejas si el usuario cambió de moneda rápido
+                if (seq !== fetchSeq) return;
+
+                // Solo autocompletar si el usuario no empezó a editar a mano durante el fetch
+                if (rateSource !== 'manual') {
+                    tcInput.value = String(rate);
+                    setApiStatus('API ' + moneda + '→ARS · OK', 'ok');
+                    syncPreview();
+                }
             } catch (e) {
-                statusEl.innerText = 'Manual Mode';
-                statusEl.className = 'text-xs text-red-500 shrink-0';
-                showToast('API no disponible. Ingresá el TC manualmente.', true);
+                if (seq !== fetchSeq) return;
+                rateSource = 'manual';
+                setApiStatus('Cotización manual requerida', 'warn');
+                // No bloquear: no tocamos el valor actual del input
+                syncPreview();
             } finally {
                 clearTimeout(timeoutId);
+                tcInput.disabled = false;
             }
         }
 
         function onMonedaChange() {
+            rateSource = 'api';
             syncPreview();
             fetchCotizacion();
+        }
+
+        function onTipoCambioInput() {
+            rateSource = 'manual';
+            setApiStatus('Manual', 'muted');
+            document.getElementById('api-help').textContent = 'Valor manual. Podés volver a consultar la API cambiando la moneda.';
+            syncPreview();
         }
 
         /* ====================================================================
@@ -515,6 +566,7 @@
             syncPreview: syncPreview,
             fetchCotizacion: fetchCotizacion,
             onMonedaChange: onMonedaChange,
+            onTipoCambioInput: onTipoCambioInput,
             handleExportClick: handleExportClick,
             validateLicense: validateLicense,
             closeModal: closeModal,
@@ -524,7 +576,8 @@
             config: {
                 get clave() { return CLAVE_SECRETA_VENTA; },
                 price: PREMIUM_PRICE_ARS,
-                storageKey: LICENSE_STORAGE_KEY
+                storageKey: LICENSE_STORAGE_KEY,
+                apiBase: API_BASE
             }
         };
     })();
