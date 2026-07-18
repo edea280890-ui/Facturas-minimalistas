@@ -22,11 +22,21 @@ Storage: `localStorage['calculadora_usd_license']`.
 
 > La clave es visible en el HTML del cliente. Sirve como fricción comercial del MVP, no como seguridad fuerte.
 
+### Link de cobro Mercado Pago
+
+Buscá **`LINK_MERCADO_PAGO`** en `index.html` (bloque `CONFIG`) y pegá tu link de pago:
+
+```js
+const LINK_MERCADO_PAGO = 'https://mpago.la/tu-link';
+```
+
+Ese link se abre desde el botón **Adquirir Licencia aquí** del modal Paywall.
+
 ---
 
 ## Netlify Drop
 
-1. Cambiá `CLAVE_SECRETA_VENTA`.
+1. Cambiá `CLAVE_SECRETA_VENTA` y `LINK_MERCADO_PAGO`.
 2. Arrastrá esta carpeta (o solo `index.html`) a [Netlify Drop](https://app.netlify.com/drop).
 3. Probá: Exportar → modal → tu clave → Descargar PNG.
 

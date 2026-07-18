@@ -263,7 +263,19 @@
             <p class="text-gray-600 mb-1 text-sm">Adquiere tu licencia Premium para generar vouchers profesionales sin restricciones.</p>
             <p class="text-2xl font-bold text-[#0B1220] mb-6 font-mono">$ 25.000 <span class="text-base font-semibold text-gray-500">ARS</span></p>
             <label class="block text-sm font-medium text-gray-700 mb-1" for="in-licencia">Llave de Licencia</label>
-            <input type="text" id="in-licencia" placeholder="PRO-XXXX" autocomplete="off" spellcheck="false" class="w-full border border-gray-300 rounded-md p-3 mb-4 uppercase font-mono">
+            <input type="text" id="in-licencia" placeholder="PRO-XXXX" autocomplete="off" spellcheck="false" class="w-full border border-gray-300 rounded-md p-3 uppercase font-mono">
+            <p class="mt-2 mb-3 text-xs leading-relaxed text-slate-500">
+                ¿No tienes tu licencia? Adquiérela en el siguiente enlace y recíbela por email:
+                <a id="link-mercado-pago-text" href="#" target="_blank" rel="noopener noreferrer" class="font-medium text-[#0F6E56] underline underline-offset-2 hover:text-[#0B5A46]">Mercado Pago</a>.
+            </p>
+            <button
+                type="button"
+                id="btn-adquirir-licencia"
+                onclick="App.openMercadoPagoCheckout()"
+                class="mb-4 w-full rounded-lg border border-[#0F6E56] bg-[#E6F4EF] px-4 py-2.5 text-sm font-semibold text-[#0F6E56] transition-colors hover:bg-[#d7efe6]"
+            >
+                Adquirir Licencia aquí
+            </button>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="App.closeModal()" class="px-4 py-2 text-gray-600 hover:text-gray-900">Cancelar</button>
                 <button type="button" onclick="App.validateLicense()" class="px-6 py-2 bg-[#0B1220] text-white rounded hover:bg-gray-800">Validar</button>
@@ -374,6 +386,14 @@
          * Cambiala por tu clave definitiva antes de Netlify Drop.
          */
         const CLAVE_SECRETA_VENTA = 'Siria-2026';
+
+        /**
+         * 💳 LINK DE COBRO MERCADO PAGO — buscá: LINK_MERCADO_PAGO
+         * Pegá aquí tu link de pago de Mercado Pago (checkout / payment link).
+         * Ejemplo: 'https://mpago.la/xxxxxx' o el link de tu producto.
+         * Se abre en una pestaña nueva desde el botón "Adquirir Licencia aquí".
+         */
+        const LINK_MERCADO_PAGO = 'PEGAR_AQUI_TU_LINK_DE_MERCADO_PAGO';
 
         const LICENSE_STORAGE_KEY = 'calculadora_usd_license';
         /**
@@ -560,6 +580,24 @@
             document.getElementById('paywall-modal').classList.add('hidden');
         }
 
+        /** Abre el checkout de Mercado Pago en una pestaña nueva (venta manual). */
+        function openMercadoPagoCheckout() {
+            const url = String(LINK_MERCADO_PAGO || '').trim();
+            if (!url || url.indexOf('http') !== 0) {
+                showToast('Configurá LINK_MERCADO_PAGO en el código antes de vender.', true);
+                return;
+            }
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function wireMercadoPagoLinks() {
+            const url = String(LINK_MERCADO_PAGO || '').trim();
+            const textLink = document.getElementById('link-mercado-pago-text');
+            if (textLink && url.indexOf('http') === 0) {
+                textLink.href = url;
+            }
+        }
+
         /* ====================================================================
          * MÓDULO · Export PNG — SOLO #voucher (footer legal excluido)
          * ==================================================================== */
@@ -639,6 +677,7 @@
          * BOOT
          * ==================================================================== */
         document.getElementById('v-fecha').innerText = 'Fecha: ' + new Date().toLocaleDateString('es-AR');
+        wireMercadoPagoLinks();
         fetchCotizacion();
         syncPreview();
 
@@ -672,6 +711,7 @@
             validateLicense: validateLicense,
             closeModal: closeModal,
             closeDownloadModal: closeDownloadModal,
+            openMercadoPagoCheckout: openMercadoPagoCheckout,
             openLegalModal: openLegalModal,
             closeLegalModal: closeLegalModal,
             openHelpModal: openHelpModal,
@@ -680,7 +720,8 @@
                 get clave() { return CLAVE_SECRETA_VENTA; },
                 price: PREMIUM_PRICE_ARS,
                 storageKey: LICENSE_STORAGE_KEY,
-                apiBase: API_BASE
+                apiBase: API_BASE,
+                get mercadoPago() { return LINK_MERCADO_PAGO; }
             }
         };
     })();
