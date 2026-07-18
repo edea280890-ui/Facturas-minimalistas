@@ -1,0 +1,39 @@
+{
+  "prototype": "docs/prototypes/calculadora-indexada-dolar.html",
+  "pr": 13,
+  "commit": "8327a45",
+  "verdict": "RECHAZADO_CONDICIONAL",
+  "qualityApproval": false,
+  "blocker": "BUG-001 horizontal overflow on viewport 320 (voucher width 360, scrollWidth 410)",
+  "pass": [
+    "NET-TIMEOUT-TIMING",
+    "NET-TIMEOUT-UI",
+    "NET-TIMEOUT-MANUAL-SYNC",
+    "NET-HTTP-ERROR",
+    "FMT-decimales",
+    "FMT-grande",
+    "FMT-muy-grande",
+    "FMT-MXN",
+    "FMT-tc-4dec",
+    "EXPORT-CANVAS-DIMS",
+    "EXPORT-TEXT-NOT-CLIPPED-IN-PNG"
+  ],
+  "fail": [
+    "BUG-001-HORIZONTAL-OVERFLOW-320"
+  ],
+  "warn": [
+    "FMT-no-cent-rounding",
+    "EXPORT-CSS-WRAP"
+  ],
+  "measurements": {
+    "timeoutMs": 3237,
+    "viewport320": {
+      "voucherW": 360,
+      "scrollWidth": 410,
+      "horizontalOverflow": true,
+      "exportPng": "720x1118",
+      "marginRightTextPx": 51,
+      "nearEdgeDarkPixels": 0
+    }
+  }
+}
