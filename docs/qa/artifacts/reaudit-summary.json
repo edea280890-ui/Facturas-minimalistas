@@ -1,0 +1,32 @@
+{
+  "type": "reaudit-post-hotfix",
+  "prototype": "docs/prototypes/calculadora-indexada-dolar.html",
+  "frontendCommit": "61701bf",
+  "scope": [
+    "HSCROLL-320",
+    "EXPORT-HTML2CANVAS-MOBILE"
+  ],
+  "verdict": "APROBADO",
+  "qualityApproval": true,
+  "pass": [
+    "HSCROLL-320",
+    "EXPORT-RES",
+    "EXPORT-DOM-TEXT",
+    "EXPORT-NO-CLIP",
+    "EXPORT-READABILITY-VISUAL",
+    "EXPORT-WRAP-CSS"
+  ],
+  "fail": [],
+  "measurements": {
+    "viewport": 320,
+    "scrollWidth": 320,
+    "bodyScrollWidth": 320,
+    "voucherW": 254,
+    "boxSizing": "border-box",
+    "exportPng": "508x1316",
+    "scale": 2,
+    "marginRightTextPx": 51,
+    "edgeDarkPixels": 0
+  },
+  "notes": "Heurístico shortRunRatio=0.664 descartado como falso negativo (anti-aliasing de glifos). Inspección visual del PNG confirma texto legible sin cortes anómalos por overflow-wrap."
+}

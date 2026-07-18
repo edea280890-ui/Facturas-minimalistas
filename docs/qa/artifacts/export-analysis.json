@@ -1,0 +1,38 @@
+{
+  "exportMeta": {
+    "canvasW": 508,
+    "canvasH": 1316,
+    "nodeW": 254,
+    "nodeH": 657.515625,
+    "voucherText": {
+      "numero": "REC-2026-00042",
+      "emisor": "Estudio Contable & Asociados SRL",
+      "receptor": "Cliente Internacional Corporation LLC",
+      "email": "ap-payments.very.long.email@cliente-internacional.example.com",
+      "concepto": "Consultoría estratégica integral para expansión regional LATAM Q3 — fase de discovery y delivery",
+      "total": "$ 1.530.499.984,70",
+      "nota": "Cotización Blue venta · DolarAPI · indexación contractual mensual",
+      "montoUsd": "$999,999.99",
+      "tc": "1.530,50"
+    },
+    "wrap": {
+      "voucher": "anywhere",
+      "total": "break-word",
+      "email": "break-word"
+    }
+  },
+  "clip": {
+    "width": 508,
+    "height": 1316,
+    "marginRightText": 51,
+    "marginLeftText": 51,
+    "edgeDark": 0,
+    "darkCount": 21377,
+    "shortRunRatio": 0.664,
+    "totalRuns": 3337,
+    "shortRuns": 2217,
+    "barInk": 4032,
+    "inkRows": 67,
+    "density": 0.032
+  }
+}
