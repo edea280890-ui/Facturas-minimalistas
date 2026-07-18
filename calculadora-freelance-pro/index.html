@@ -77,6 +77,47 @@
         }
         .legal-modal-body li { margin-bottom: 0.5rem; }
 
+        .help-steps {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            counter-reset: help-step;
+        }
+        .help-steps li {
+            position: relative;
+            padding-left: 2.25rem;
+            margin-bottom: 1rem;
+            color: #475569;
+            font-size: 0.875rem;
+            line-height: 1.55;
+        }
+        .help-steps li:last-child { margin-bottom: 0; }
+        .help-steps li::before {
+            counter-increment: help-step;
+            content: counter(help-step);
+            position: absolute;
+            left: 0;
+            top: 0.1rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background: #E6F4EF;
+            color: #0F6E56;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+        .help-steps strong {
+            display: block;
+            color: #0B1220;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     </style>
@@ -99,7 +140,23 @@
              ZONA A · Carga de datos (Calculadora)
              ================================================================= -->
         <section class="w-full md:w-5/12 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 class="text-xl font-bold mb-4 text-[#0B1220]">Configurar Cotización</h2>
+            <div class="mb-4 flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold text-[#0B1220]">Configurar Cotización</h2>
+                <button
+                    type="button"
+                    id="btn-ayuda"
+                    onclick="App.openHelpModal()"
+                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600"
+                    aria-label="Ayuda rápida: ¿Cómo funciona?"
+                    title="¿Cómo funciona?"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 16v-5"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                </button>
+            </div>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="in-concepto">Concepto / Servicio</label>
@@ -270,6 +327,34 @@
             </div>
             <div class="mt-5 flex justify-end">
                 <button type="button" onclick="App.closeLegalModal('privacidad')" class="px-6 py-2 bg-[#0B1220] text-white rounded hover:bg-gray-800">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ayuda rápida — fuera de #voucher (no se exporta) -->
+    <div id="modal-ayuda" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true" aria-labelledby="ayuda-title">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 id="ayuda-title" class="text-xl font-bold mb-4 text-[#0B1220]">¿Cómo funciona?</h3>
+            <ol class="help-steps">
+                <li>
+                    <strong>Configura tu servicio</strong>
+                    Ingresa el concepto y el monto original en tu moneda (USD, EUR, etc.).
+                </li>
+                <li>
+                    <strong>Selecciona la divisa</strong>
+                    Elige la moneda global. La app calculará automáticamente la tasa a pesos argentinos (ARS).
+                </li>
+                <li>
+                    <strong>Ajuste manual</strong>
+                    Si prefieres usar tu propio valor de cambio (ej. Dólar Blue, Crypto o MEP), puedes editar el campo ‘Tipo de Cambio’ libremente.
+                </li>
+                <li>
+                    <strong>Genera tu voucher</strong>
+                    Haz clic en ‘Exportar Imagen’ para obtener un presupuesto profesional y listo para enviar.
+                </li>
+            </ol>
+            <div class="mt-6 flex justify-end">
+                <button type="button" onclick="App.closeHelpModal()" class="px-6 py-2 bg-[#0B1220] text-white rounded hover:bg-gray-800">Cerrar</button>
             </div>
         </div>
     </div>
@@ -540,6 +625,17 @@
         }
 
         /* ====================================================================
+         * MÓDULO · Ayuda rápida (UX) — no toca paywall ni export
+         * ==================================================================== */
+        function openHelpModal() {
+            document.getElementById('modal-ayuda').classList.remove('hidden');
+        }
+
+        function closeHelpModal() {
+            document.getElementById('modal-ayuda').classList.add('hidden');
+        }
+
+        /* ====================================================================
          * BOOT
          * ==================================================================== */
         document.getElementById('v-fecha').innerText = 'Fecha: ' + new Date().toLocaleDateString('es-AR');
@@ -551,6 +647,7 @@
                 closeModal();
                 closeDownloadModal();
                 closeAllLegalModals();
+                closeHelpModal();
             }
         });
 
@@ -560,6 +657,10 @@
             el.addEventListener('click', function (evt) {
                 if (evt.target === el) closeLegalModal(key);
             });
+        });
+
+        document.getElementById('modal-ayuda').addEventListener('click', function (evt) {
+            if (evt.target === evt.currentTarget) closeHelpModal();
         });
 
         window.App = {
@@ -573,6 +674,8 @@
             closeDownloadModal: closeDownloadModal,
             openLegalModal: openLegalModal,
             closeLegalModal: closeLegalModal,
+            openHelpModal: openHelpModal,
+            closeHelpModal: closeHelpModal,
             config: {
                 get clave() { return CLAVE_SECRETA_VENTA; },
                 price: PREMIUM_PRICE_ARS,
