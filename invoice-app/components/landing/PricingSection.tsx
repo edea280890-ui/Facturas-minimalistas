@@ -21,7 +21,7 @@ const PRO_FEATURES = [
   'Panel "Mis facturas": listar, editar y eliminar',
   'Numeración automática secuencial',
   'Logo personalizado de tu empresa en el PDF',
-  'Pago único — acceso de por vida, sin suscripción',
+  'Acceso Ilimitado, sin suscripción',
 ];
 
 export default function PricingSection() {
@@ -53,7 +53,7 @@ export default function PricingSection() {
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Gratis</h3>
           <p className="mt-2 text-3xl font-bold text-slate-900">$0</p>
-          <p className="mt-1 text-sm text-slate-500">Para siempre</p>
+          <p className="mt-1 text-sm text-slate-500">Acceso Ilimitado</p>
           <ul className="mt-6 space-y-2 text-sm text-slate-600">
             {FREE_FEATURES.map((feature) => (
               <li key={feature} className="flex items-start gap-2">
@@ -70,7 +70,7 @@ export default function PricingSection() {
           </span>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Pro</h3>
           <p className="mt-2 text-3xl font-bold">{PRO_PRICE_USD_LABEL} USD</p>
-          <p className="mt-1 text-sm text-slate-300">Pago único, sin renovaciones</p>
+          <p className="mt-1 text-sm text-slate-300">Plan Ilimitado, sin renovaciones</p>
           <ul className="mt-6 space-y-2 text-sm text-slate-200">
             {PRO_FEATURES.map((feature) => (
               <li key={feature} className="flex items-start gap-2">

@@ -44,7 +44,7 @@ export async function POST(request: Request) {
             currency: 'usd',
             product_data: {
               name: PRO_PRODUCT_NAME,
-              description: 'Acceso de por vida a guardar y gestionar facturas en la nube.',
+              description: 'Acceso Ilimitado a guardar y gestionar facturas en la nube.',
             },
             unit_amount: PRO_PRICE_USD_CENTS,
           },

@@ -34,7 +34,7 @@ export default function HotmartPricingSection() {
     {
       name: 'Plan Gratuito',
       price: 'Gratis',
-      priceNote: 'Para siempre, sin tarjeta',
+      priceNote: 'Acceso Ilimitado, sin tarjeta',
       description: 'Crea, previsualiza y descarga tus facturas en PDF sin costo y sin crear una cuenta.',
       features: [
         'Facturas ilimitadas',
@@ -48,7 +48,7 @@ export default function HotmartPricingSection() {
     {
       name: 'Plan Pro',
       price: `${PRO_PRICE_USD_LABEL} USD`,
-      priceNote: 'Pago único — de por vida',
+      priceNote: 'Acceso Ilimitado',
       description: 'Todo lo del Plan Gratuito, además de guardar tus facturas en la nube.',
       features: [
         'Todo lo del Plan Gratuito',
