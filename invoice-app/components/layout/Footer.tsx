@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { OPERATOR_NAME, PRODUCT_NAME, SUPPORT_EMAIL } from '@/utils/brand';
+import { OPERATOR_NAME, PRODUCT_NAME } from '@/utils/brand';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -22,8 +22,8 @@ export default function Footer() {
           <Link href="/refund" className="hover:text-slate-900">
             Refund
           </Link>
-          <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-slate-900">
-            {SUPPORT_EMAIL}
+          <a href="mailto:soporte@facturaexterior.com" className="hover:text-slate-900">
+            soporte@facturaexterior.com
           </a>
         </nav>
       </div>

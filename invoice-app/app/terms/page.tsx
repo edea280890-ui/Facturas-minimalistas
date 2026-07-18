@@ -1,12 +1,7 @@
 import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
-import {
-  LEMON_SQUEEZY_OPERATOR_PAYMENTS,
-  PRODUCT_NAME,
-  PRODUCT_TITLE,
-  SUPPORT_EMAIL,
-} from '@/utils/brand';
+import { PRODUCT_NAME, PRODUCT_TITLE } from '@/utils/brand';
 
 export const metadata: Metadata = {
   title: `Términos y Condiciones — ${PRODUCT_TITLE}`,
@@ -24,7 +19,13 @@ export default function TermsPage() {
       </p>
 
       <LegalSection title="1. Operador y Pagos">
-        <p className="font-medium leading-relaxed text-slate-800">{LEMON_SQUEEZY_OPERATOR_PAYMENTS}</p>
+        <p>
+          FacturaExterior es un producto digital desarrollado y operado por Sirapp Studio. El procesamiento
+          de pagos, la facturación y la recaudación de impuestos de las suscripciones generadas en este sitio
+          son gestionados por nuestro socio comercial, Lemon Squeezy, quien actúa como el comerciante
+          registrado (Merchant of Record) oficial. Al adquirir una suscripción, usted acepta las condiciones
+          de servicio de dicho procesador.
+        </p>
       </LegalSection>
 
       <LegalSection title="2. Uso del Servicio">
@@ -52,8 +53,8 @@ export default function TermsPage() {
       <LegalSection title="5. Contacto">
         <p>
           Para soporte técnico o consultas, contáctenos en:{' '}
-          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
-            {SUPPORT_EMAIL}
+          <a className="underline" href="mailto:soporte@facturaexterior.com">
+            soporte@facturaexterior.com
           </a>
           .
         </p>

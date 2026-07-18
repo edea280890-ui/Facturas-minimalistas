@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import LegalPageLayout from '@/components/legal/LegalPageLayout';
 import LegalSection from '@/components/legal/LegalSection';
-import { PRODUCT_NAME, PRODUCT_TITLE, SUPPORT_EMAIL } from '@/utils/brand';
+import { PRODUCT_NAME, PRODUCT_TITLE } from '@/utils/brand';
 
 export const metadata: Metadata = {
   title: `Política de Privacidad — ${PRODUCT_TITLE}`,
@@ -41,8 +41,8 @@ export default function PrivacyPage() {
         <p>
           Para ejercer sus derechos sobre sus datos, solicitar la eliminación de su cuenta o realizar
           consultas de privacidad, contáctenos en:{' '}
-          <a className="underline" href={`mailto:${SUPPORT_EMAIL}`}>
-            {SUPPORT_EMAIL}
+          <a className="underline" href="mailto:soporte@facturaexterior.com">
+            soporte@facturaexterior.com
           </a>
           .
         </p>

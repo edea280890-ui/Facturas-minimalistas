@@ -36,7 +36,7 @@ export default function RefundPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Usuarios de Acceso Ilimitado (&quot;Lifetime&quot;)">
+      <LegalSection title='4. Usuarios de Acceso Ilimitado ("Lifetime")'>
         <p>
           El acceso de por vida está estrictamente condicionado a la existencia y continuidad operativa del
           Servicio. Si el servicio se interrumpe o cierra permanentemente, los usuarios de licencias

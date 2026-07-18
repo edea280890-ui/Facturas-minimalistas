@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { SUPPORT_EMAIL } from '@/utils/brand';
 
 interface LegalPageLayoutProps {
   title: string;
@@ -40,8 +39,8 @@ export default function LegalPageLayout({ title, lastUpdated, children }: LegalP
             <Link href="/refund" className="font-medium text-slate-600 hover:text-slate-900">
               Refund
             </Link>
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-slate-600 hover:text-slate-900">
-              {SUPPORT_EMAIL}
+            <a href="mailto:soporte@facturaexterior.com" className="font-medium text-slate-600 hover:text-slate-900">
+              soporte@facturaexterior.com
             </a>
           </nav>
         </article>
