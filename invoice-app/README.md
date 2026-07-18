@@ -14,6 +14,7 @@ Micro-SaaS para crear, previsualizar y descargar facturas en PDF. Plan gratuito 
 | `/admin` | Panel de suscriptores (solo `ADMIN_EMAILS`) |
 | `/terms`, `/privacy` | Documentos legales |
 | `/api/webhooks/hotmart` | Webhook Hotmart → `subscribers` + Pro |
+| `/api/webhooks/lemonsqueezy` | Webhook Lemon Squeezy → `profiles.is_premium` |
 | `/api/webhooks/stripe` | Webhook Stripe (fallback) |
 | `/api/checkout` | Crea sesión Stripe Checkout (fallback) |
 | `/api/admin/subscribers` | API del panel admin |
@@ -60,6 +61,7 @@ Ver `.env.example`. Resumen:
 
 - **Supabase**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - **Hotmart** (recomendado): `HOTMART_HOTTOK`, `NEXT_PUBLIC_HOTMART_CHECKOUT_URL`
+- **Lemon Squeezy** (pagos Pro): `LEMONSQUEEZY_WEBHOOK_SECRET`
 - **Stripe** (opcional/fallback): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 
 Si `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` está definido, los botones “Comprar / Actualizar a Pro” abren Hotmart. Si no, `/app` usa Stripe Checkout.
@@ -77,7 +79,13 @@ Si `NEXT_PUBLIC_HOTMART_CHECKOUT_URL` está definido, los botones “Comprar / A
 7. En Hotmart, configura el webhook a:
    - `https://TU-DOMINIO.vercel.app/api/webhooks/hotmart`
    - Mismo `hottok` que `HOTMART_HOTTOK`
-8. (Opcional) Stripe webhook → `/api/webhooks/stripe` con el signing secret en `STRIPE_WEBHOOK_SECRET`.
+8. En **Lemon Squeezy → Settings → Webhooks**, crea un webhook:
+   - **URL:** `https://TU-DOMINIO.vercel.app/api/webhooks/lemonsqueezy`
+   - **Evento:** `order_created`
+   - **Signing secret:** cópialo a Vercel como `LEMONSQUEEZY_WEBHOOK_SECRET`
+   - **Test de conectividad:** abre `GET https://TU-DOMINIO.vercel.app/api/webhooks/lemonsqueezy` — debe responder `{"ok":true,"handshake":true}`
+   - En Vercel Logs, filtra por `[lemonsqueezy]` o `[middleware] Webhook bypass`
+9. (Opcional) Stripe webhook → `/api/webhooks/stripe` con el signing secret en `STRIPE_WEBHOOK_SECRET`.
 
 ## Scripts
 
