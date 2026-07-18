@@ -59,12 +59,15 @@
         radial-gradient(900px 500px at 100% 0%, #E7EEF8 0%, transparent 50%),
         var(--surface);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .tabular { font-variant-numeric: tabular-nums; }
 
     .field {
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 0.5rem;
@@ -74,6 +77,7 @@
       color: var(--ink);
       outline: none;
       transition: border-color 120ms ease, box-shadow 120ms ease;
+      box-sizing: border-box;
     }
     .field:focus {
       border-color: var(--accent);
@@ -106,16 +110,25 @@
 
     .live-total {
       transition: opacity 140ms ease, transform 140ms ease;
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
+      max-width: 100%;
     }
     .live-total.is-updating {
       opacity: 0.55;
       transform: translateY(2px);
     }
+    #liveFormula {
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
 
     /* Voucher: CSS básico únicamente (export-safe). Sin Tailwind dentro. */
     #voucher {
-      width: 360px;
+      width: min(360px, 100%);
       max-width: 100%;
+      box-sizing: border-box;
       margin: 0 auto;
       background: #FFFFFF;
       color: #111827;
@@ -123,6 +136,7 @@
       font-size: 13px;
       line-height: 1.45;
       border: 1px solid #E5E7EB;
+      overflow-wrap: anywhere;
     }
     #voucher .v-bar {
       height: 4px;
@@ -156,6 +170,8 @@
       font-size: 13px;
       color: #111827;
       margin: 0;
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
     }
     #voucher .v-rule {
       border: 0;
@@ -174,6 +190,8 @@
       color: #111827;
       font-variant-numeric: tabular-nums;
       text-align: right;
+      overflow-wrap: anywhere;
+      max-width: 65%;
     }
     #voucher .v-total-label {
       font-size: 12px;
@@ -186,11 +204,15 @@
       color: #0B1220;
       margin: 0;
       font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
     }
     #voucher .v-note {
       font-size: 11px;
       color: #6B7280;
       margin: 16px 0 0 0;
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
     }
     #voucher .v-hidden {
       display: none;
@@ -240,7 +262,7 @@
 
   <main class="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,42%)_minmax(0,58%)] lg:gap-8 lg:py-8">
     <!-- ZONA A: Carga de datos -->
-    <section aria-labelledby="zoneATitle" class="rounded-xl border border-line bg-white p-5 sm:p-6">
+    <section aria-labelledby="zoneATitle" class="min-w-0 rounded-xl border border-line bg-white p-5 sm:p-6">
       <h2 id="zoneATitle" class="zone-title mb-5">Carga de datos</h2>
 
       <form id="calcForm" class="space-y-4" autocomplete="on" novalidate>
@@ -336,7 +358,7 @@
     </section>
 
     <!-- ZONA B: Previsualización del Voucher -->
-    <section aria-labelledby="zoneBTitle" class="flex flex-col">
+    <section aria-labelledby="zoneBTitle" class="flex min-w-0 flex-col">
       <div class="mb-4 flex items-center justify-between gap-2">
         <h2 id="zoneBTitle" class="zone-title">Previsualización del voucher</h2>
         <button
@@ -348,7 +370,7 @@
         </button>
       </div>
 
-      <div class="flex flex-1 items-start justify-center rounded-xl border border-dashed border-line bg-surface/80 p-4 sm:p-8">
+      <div class="flex w-full max-w-full min-w-0 flex-1 items-start justify-center overflow-x-auto rounded-xl border border-dashed border-line bg-surface/80 p-4 sm:p-8">
         <div id="voucher">
           <div class="v-bar"></div>
           <div class="v-body">
@@ -585,7 +607,7 @@
         const monto = parseNumber(els.montoUsd.value);
         const tc = parseNumber(els.tipoCambio.value);
         const currency = els.monedaLocal.value || 'ARS';
-        const total = monto * tc;
+        const total = Math.round(monto * tc * 100) / 100;
 
         els.liveTotal.classList.add('is-updating');
         window.requestAnimationFrame(function () {
