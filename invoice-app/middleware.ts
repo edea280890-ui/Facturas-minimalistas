@@ -7,6 +7,7 @@ import { createSupabaseMiddlewareClient } from '@/utils/supabase/middleware';
  * Bypass estricto (nunca redirige a /maintenance):
  * - /api/webhooks/* (incl. /api/webhooks/lemonsqueezy)
  * - /maintenance
+ * - /calculadora (PWA estática Calculadora Freelance PRO)
  * - estáticos vía `config.matcher` (_next, favicon, imágenes)
  */
 export async function middleware(request: NextRequest) {
@@ -20,6 +21,11 @@ export async function middleware(request: NextRequest) {
       userAgent: request.headers.get('user-agent'),
       contentType: request.headers.get('content-type'),
     });
+    return NextResponse.next();
+  }
+
+  // 1b) Calculadora Freelance PRO (HTML estático en /public/calculadora).
+  if (pathname === '/calculadora' || pathname.startsWith('/calculadora/')) {
     return NextResponse.next();
   }
 
