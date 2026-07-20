@@ -1,0 +1,19 @@
+{
+  "metricsTop": {
+    "vw": 320,
+    "vh": 700,
+    "scrollWidth": 320,
+    "bodyScrollWidth": 320,
+    "clientWidth": 320,
+    "overflowX": "visible",
+    "bodyOverflowX": "hidden",
+    "voucherW": 254,
+    "voucherCssWidth": "254px",
+    "boxSizing": "border-box"
+  },
+  "metricsVoucher": {
+    "scrollWidth": 320,
+    "scrollX": 0
+  },
+  "offenders": []
+}

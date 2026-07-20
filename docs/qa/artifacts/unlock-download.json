@@ -1,0 +1,16 @@
+{
+  "elapsed": 124,
+  "trace": {
+    "clicked": true,
+    "dataUrlLen": 0,
+    "toast": "Imagen descargada",
+    "t0": 121,
+    "tDone": 244.09999999962747,
+    "hrefLen": 92986,
+    "download": "voucher-usd-20260718.png",
+    "toastShown": true,
+    "modalHidden": "true",
+    "license": "PRO-2026",
+    "durationMs": 123.09999999962747
+  }
+}

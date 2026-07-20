@@ -1,0 +1,27 @@
+{
+  "afterCancel": {
+    "hidden": "true",
+    "open": false,
+    "bodyLocked": false,
+    "errHidden": true,
+    "license": null,
+    "calcAlive": true,
+    "liveTotal": "$ 1.912.500,00"
+  },
+  "calcWorks": {
+    "vTotal": "$ 250.000,00",
+    "live": "$ 250.000,00",
+    "license": null,
+    "modalOpen": false,
+    "bodyLocked": false
+  },
+  "final": {
+    "modalOpen": false,
+    "bodyLocked": false,
+    "license": null,
+    "formOk": true,
+    "voucherOk": true,
+    "btnOk": true,
+    "vTotal": "$ 250.000,00"
+  }
+}

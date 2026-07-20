@@ -1,0 +1,84 @@
+{
+  "results": [
+    {
+      "variant": "\"PRO-2026\"",
+      "closed": true,
+      "license": "PRO-2026",
+      "ok": true
+    },
+    {
+      "variant": "\"pro-2026\"",
+      "closed": true,
+      "license": "PRO-2026",
+      "ok": true
+    },
+    {
+      "variant": "\"Pro-2026\"",
+      "closed": true,
+      "license": "PRO-2026",
+      "ok": true
+    },
+    {
+      "variant": "\"pRo-2026\"",
+      "closed": true,
+      "license": "PRO-2026",
+      "ok": true
+    },
+    {
+      "variant": "\"  PRO-2026  \"",
+      "closed": true,
+      "license": "PRO-2026",
+      "ok": true
+    },
+    {
+      "variant": "\"  pro-2026\"",
+      "closed": true,
+      "license": "PRO-2026",
+      "ok": true
+    }
+  ],
+  "badResults": [
+    {
+      "bad": "\"PRO-2025\"",
+      "stillOpen": true,
+      "errShown": true,
+      "license": null,
+      "ok": true
+    },
+    {
+      "bad": "\"PRO2026\"",
+      "stillOpen": true,
+      "errShown": true,
+      "license": null,
+      "ok": true
+    },
+    {
+      "bad": "\"XPRO-2026\"",
+      "stillOpen": true,
+      "errShown": true,
+      "license": null,
+      "ok": true
+    },
+    {
+      "bad": "\"\"",
+      "stillOpen": true,
+      "errShown": true,
+      "license": null,
+      "ok": true
+    },
+    {
+      "bad": "\"premium\"",
+      "stillOpen": true,
+      "errShown": true,
+      "license": null,
+      "ok": true
+    },
+    {
+      "bad": "\"PRO-20266\"",
+      "stillOpen": true,
+      "errShown": true,
+      "license": null,
+      "ok": true
+    }
+  ]
+}
