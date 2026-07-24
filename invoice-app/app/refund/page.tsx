@@ -36,11 +36,11 @@ export default function RefundPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Usuarios de Acceso Ilimitado (&quot;Lifetime&quot;)">
+      <LegalSection title="4. Usuarios de Acceso Ilimitado">
         <p>
-          El acceso de por vida está estrictamente condicionado a la existencia y continuidad operativa del
-          Servicio. Si el servicio se interrumpe o cierra permanentemente, los usuarios de licencias
-          &quot;Lifetime&quot; no tendrán derecho a compensaciones monetarias ni reembolsos una vez vencido el
+          El Acceso Ilimitado está estrictamente condicionado a la existencia y continuidad operativa del
+          Servicio. Si el servicio se interrumpe o cierra permanentemente, los usuarios de Acceso
+          Ilimitado no tendrán derecho a compensaciones monetarias ni reembolsos una vez vencido el
           periodo de aviso previo de 30 días definido en los Términos de Servicio.
         </p>
       </LegalSection>

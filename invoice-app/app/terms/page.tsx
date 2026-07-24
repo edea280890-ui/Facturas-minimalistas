@@ -63,7 +63,7 @@ export default function TermsPage() {
         <p>
           Sirapp Studio se reserva el derecho de modificar, suspender o interrumpir el Servicio (o cualquier
           parte del mismo) en cualquier momento, con o sin previo aviso. En el caso de suscripciones de
-          acceso ilimitado (&quot;Lifetime&quot;), Sirapp Studio se compromete a proporcionar un aviso previo
+          Acceso Ilimitado, Sirapp Studio se compromete a proporcionar un aviso previo
           de al menos 30 días antes de una interrupción definitiva del servicio, sin que esto constituya una
           obligación de reembolso retroactivo o compensación económica, salvo lo estipulado en nuestra
           Política de Reembolso.
